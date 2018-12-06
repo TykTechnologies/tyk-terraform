@@ -1,0 +1,46 @@
+#cloud-config
+repo_update: true
+repo_upgrade: all
+
+yum_repos:
+  tyk-pump:
+    name: tyk_tyk-pump
+    baseurl: https://packagecloud.io/tyk/tyk-pump/el/7/x86_64
+    enabled: true
+    gpgcheck: false
+    repo_gpgcheck: true
+    gpgkey: https://packagecloud.io/tyk/tyk-pump/gpgkey
+    sslverify: true
+    sslcacert: /etc/pki/tls/certs/ca-bundle.crt
+    metadata_expire: 300
+
+packages:
+  - pygpgme
+  - yum-utils
+  - [tyk-pump, ${pump_version}-1]
+
+write_files:
+  - content: |
+      ${redis_host != "" ? "TYK_PMP_ANALYTICSSTORAGECONFIG_HOST=\"${redis_host}\"" : ""}
+      ${redis_port != "" ? "TYK_PMP_ANALYTICSSTORAGECONFIG_PORT=\"${redis_port}\"" : ""}
+      ${redis_password != "" ? "TYK_PMP_ANALYTICSSTORAGECONFIG_PASSWORD=\"${redis_password}\"" : ""}
+      ${redis_enable_cluster != "" ? "TYK_PMP_ANALYTICSSTORAGECONFIG_ENABLECLUSTER=\"${redis_enable_cluster}\"" : ""}
+      ${redis_hosts != "" ? "TYK_PMP_ANALYTICSSTORAGECONFIG_HOSTS=\"${redis_hosts}\"" : ""}
+      ${mongo_url != "" ? "PMP_MONGO_MONGOURL=\"${mongo_url}\"" : ""}
+      ${mongo_use_ssl != "" ? "PMP_MONGO_MONGOUSESSL=\"${mongo_use_ssl}\"" : ""}
+      ${mongo_url != "" ? "PMP_MONGOAGG_MONGOURL=\"${mongo_url}\"" : ""}
+      ${mongo_use_ssl != "" ? "PMP_MONGOAGG_MONGOUSESSL=\"${mongo_use_ssl}\"" : ""}
+    path: /etc/default/tyk-pump
+    owner: root:root
+    permissions: '0660'
+  - content: ${custom_config}
+    encoding: b64
+    path: /run/pump.conf
+    owner: tyk:tyk
+    permissions: '0660'
+
+runcmd:
+  - [ sh, /opt/tyk-pump/install/setup.sh ]
+  - [ sh, -c, "[ -s /run/pump.conf ] || cp /run/pump.conf /opt/tyk-pump/" ]
+  - [ systemctl, start, tyk-pump ]
+  - [ systemctl, enable, tyk-pump ]

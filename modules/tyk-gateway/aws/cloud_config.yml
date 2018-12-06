@@ -1,0 +1,55 @@
+#cloud-config
+repo_update: true
+repo_upgrade: all
+
+yum_repos:
+  tyk-gateway:
+    name: tyk_tyk-gateway
+    baseurl: https://packagecloud.io/tyk/tyk-gateway/el/7/x86_64
+    enabled: true
+    gpgcheck: false
+    repo_gpgcheck: true
+    gpgkey: https://packagecloud.io/tyk/tyk-gateway/gpgkey
+    sslverify: true
+    sslcacert: /etc/pki/tls/certs/ca-bundle.crt
+    metadata_expire: 300
+
+packages:
+  - pygpgme
+  - yum-utils
+  - [tyk-gateway, ${gateway_version}-1]
+
+write_files:
+  - content: |
+      [Service]
+      LimitNOFILE=80000
+      LimitNPROC=80000
+    path: /etc/systemd/system/tyk-gateway.service.d/limits.conf
+    owner: root:root
+    permissions: '0664'
+  - content: |
+      ${redis_host != "" ? "TYK_GW_STORAGE_HOST=\"${redis_host}\"" : ""}
+      ${redis_port != "" ? "TYK_GW_STORAGE_PORT=\"${redis_port}\"" : ""}
+      ${redis_password != "" ? "TYK_GW_STORAGE_PASSWORD=\"${redis_password}\"" : ""}
+      ${redis_enable_cluster != "" ? "TYK_GW_STORAGE_ENABLECLUSTER=\"${redis_enable_cluster}\"" : ""}
+      ${redis_hosts != "" ? "TYK_GW_STORAGE_HOSTS=\"${redis_hosts}\"" : ""}
+      ${gateway_secret != "" ? "TYK_GW_SECRET=\"${gateway_secret}\"" : ""}
+      ${shared_node_secret != "" ? "TYK_GW_NODESECRET=\"${shared_node_secret}\"" : ""}
+      ${dashboard_url != "" ? "TYK_GW_DBAPPCONFOPTIONS_CONNECTIONSTRING=\"${dashboard_url}\"" : ""}
+      ${dashboard_url != "" ? "TYK_GW_POLICIES_POLICYCONNECTIONSTRING=\"${dashboard_url}\"" : ""}
+      ${dashboard_url != "" ? "TYK_GW_DISABLEDASHBOARDZEROCONF=\"true\"" : ""}
+    path: /etc/default/tyk-gateway
+    owner: root:root
+    permissions: '0660'
+  - content: ${custom_config}
+    encoding: b64
+    path: /run/tyk.conf
+    owner: root:root
+    permissions: '0660'
+
+runcmd:
+  - [ sh, /opt/tyk-gateway/install/setup.sh, --dashboard=${dashboard_url != "" ? "1" : ""}, --listenport=8080 ]
+  - [ sh, -c, "[ -s /run/tyk.conf ] || cp /run/tyk.conf /opt/tyk-gateway/" ]
+  - [ systemctl, daemon-reload ]
+  - [ systemctl, start, tyk-gateway ]
+  - [ systemctl, enable, tyk-gateway ]

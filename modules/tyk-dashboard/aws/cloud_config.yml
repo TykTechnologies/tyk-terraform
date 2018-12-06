@@ -1,0 +1,53 @@
+#cloud-config
+repo_update: true
+repo_upgrade: all
+
+yum_repos:
+  tyk-dashboard:
+    name: tyk_tyk-dashboard
+    baseurl: https://packagecloud.io/tyk/tyk-dashboard/el/7/x86_64
+    enabled: true
+    gpgcheck: false
+    repo_gpgcheck: true
+    gpgkey: https://packagecloud.io/tyk/tyk-dashboard/gpgkey
+    sslverify: true
+    sslcacert: /etc/pki/tls/certs/ca-bundle.crt
+    metadata_expire: 300
+
+packages:
+  - pygpgme
+  - yum-utils
+  - [tyk-dashboard, ${dashboard_version}-1]
+
+write_files:
+  - content: |
+      ${mongo_url != "" ? "TYK_DB_MONGOURL=\"${mongo_url}\"" : ""}
+      ${mongo_use_ssl != "" ? "TYK_DB_MONGOUSESSL=\"${mongo_use_ssl}\"" : ""}
+      ${redis_host != "" ? "TYK_DB_REDISHOST=\"${redis_host}\"" : ""}
+      ${redis_port != "" ? "TYK_DB_REDISPORT=\"${redis_port}\"" : ""}
+      ${redis_password != "" ? "TYK_DB_REDISPASSWORD=\"${redis_password}\"" : ""}
+      ${redis_enable_cluster != "" ? "TYK_DB_ENABLECLUSTER=\"${redis_enable_cluster}\"" : ""}
+      ${redis_hosts != "" ? "TYK_DB_HOSTS=\"${redis_hosts}\"" : ""}
+      ${gateway_host != "" ? "TYK_DB_TYKAPI_HOST=\"${gateway_host}\"" : ""}
+      ${gateway_port != "" ? "TYK_DB_TYKAPI_PORT=\"${gateway_port}\"" : ""}
+      ${gateway_secret != "" ? "TYK_DB_TYKAPI_SECRET=\"${gateway_secret}\"" : ""}
+      ${shared_node_secret != "" ? "TYK_DB_NODESECRET=\"${shared_node_secret}\"" : ""}
+      ${admin_secret != "" ? "TYK_DB_ADMINSECRET=\"${admin_secret}\"" : ""}
+      ${license_key != "" ? "TYK_DB_LICENSEKEY=\"${license_key}\"" : ""}
+      ${hostname != "" ? "TYK_DB_HOSTCONFIG_HOSTNAME=\"${hostname}\"" : ""}
+      ${api_hostname != "" ? "TYK_DB_HOSTCONFIG_GATEWAYHOSTNAME=\"${api_hostname}\"" : ""}
+      ${portal_root != "" ? "TYK_DB_HOSTCONFIG_PORTALROOTPATH=\"${portal_root}\"" : ""}
+    path: /etc/default/tyk-dashboard
+    owner: root:root
+    permissions: '0660'
+  - content: ${custom_config}
+    encoding: b64
+    path: /run/tyk_analytics.conf
+    owner: tyk:tyk
+    permissions: '0660'
+
+runcmd:
+  - [ sh, /opt/tyk-dashboard/install/setup.sh, --listenport=3000 ]
+  - [ sh, -c, "[ -s /run/tyk_analytics.conf ] || cp /run/tyk_analytics.conf /opt/tyk-dashboard/" ]
+  - [ systemctl, start, tyk-dashboard ]
+  - [ systemctl, enable, tyk-dashboard ]
