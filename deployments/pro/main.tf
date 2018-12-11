@@ -82,14 +82,15 @@ module "tyk_gateway" {
   redis_password   = "${var.redis_password}"
   instance_type    = "${var.instance_types["gateway"]}"
 
-  min_size                = 2
-  max_size                = 4
-  create_scaling_policies = true
-  port                    = "80"
-  gateway_version         = "2.7.4"
-  gateway_secret          = "${random_string.gateway_secret.result}"
-  shared_node_secret      = "${random_string.shared_secret.result}"
-  dashboard_url           = "http://${module.tyk_dashboard.dns_name}:80"
+  min_size                  = 2
+  max_size                  = 4
+  create_scaling_policies   = true
+  port                      = "80"
+  gateway_version           = "2.7.4"
+  gateway_secret            = "${random_string.gateway_secret.result}"
+  shared_node_secret        = "${random_string.shared_secret.result}"
+  dashboard_url             = "http://${module.tyk_dashboard.dns_name}:80"
+  enable_detailed_analytics = "false"
 }
 
 resource "aws_route53_record" "gateway_region" {

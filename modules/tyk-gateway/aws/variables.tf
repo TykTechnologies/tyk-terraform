@@ -117,3 +117,9 @@ variable "dashboard_url" {
   description = "Tyk dashboard URL (leave empty if not used)"
   default     = ""
 }
+
+variable "enable_detailed_analytics" {
+  type        = "string"
+  description = "Enable detailed (request/response) analytics"
+  default     = ""
+}

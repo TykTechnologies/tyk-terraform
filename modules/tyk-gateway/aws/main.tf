@@ -112,16 +112,17 @@ data "template_file" "cloud_config" {
   template = "${file("${path.module}/cloud_config.yml")}"
 
   vars {
-    gateway_version      = "${var.gateway_version}"
-    custom_config        = "${base64encode("${var.gateway_config}")}"
-    redis_host           = "${var.redis_host}"
-    redis_port           = "${var.redis_port}"
-    redis_password       = "${var.redis_password}"
-    redis_enable_cluster = "${var.redis_enable_cluster}"
-    redis_hosts          = "${var.redis_hosts}"
-    gateway_secret       = "${var.gateway_secret}"
-    shared_node_secret   = "${var.shared_node_secret}"
-    dashboard_url        = "${var.dashboard_url}"
+    gateway_version           = "${var.gateway_version}"
+    custom_config             = "${base64encode("${var.gateway_config}")}"
+    redis_host                = "${var.redis_host}"
+    redis_port                = "${var.redis_port}"
+    redis_password            = "${var.redis_password}"
+    redis_enable_cluster      = "${var.redis_enable_cluster}"
+    redis_hosts               = "${var.redis_hosts}"
+    gateway_secret            = "${var.gateway_secret}"
+    shared_node_secret        = "${var.shared_node_secret}"
+    dashboard_url             = "${var.dashboard_url}"
+    enable_detailed_analytics = "${var.enable_detailed_analytics}"
   }
 }
 

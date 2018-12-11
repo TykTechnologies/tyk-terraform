@@ -38,6 +38,7 @@ write_files:
       ${dashboard_url != "" ? "TYK_GW_DBAPPCONFOPTIONS_CONNECTIONSTRING=\"${dashboard_url}\"" : ""}
       ${dashboard_url != "" ? "TYK_GW_POLICIES_POLICYCONNECTIONSTRING=\"${dashboard_url}\"" : ""}
       ${dashboard_url != "" ? "TYK_GW_DISABLEDASHBOARDZEROCONF=\"true\"" : ""}
+      ${enable_detailed_analytics != "" ? "TYK_GW_ANALYTICSCONFIG_ENABLEDETAILEDRECORDING=\"${enable_detailed_analytics}\"" : ""}
     path: /etc/default/tyk-gateway
     owner: root:root
     permissions: '0660'
