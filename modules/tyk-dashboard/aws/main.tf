@@ -182,12 +182,13 @@ module "asg" {
   name = "tyk_dashboard"
 
   # Launch configuration
-  lc_name         = "tyk_dashboard"
-  image_id        = "${data.aws_ami.amazonlinux.id}"
-  instance_type   = "${var.instance_type}"
-  security_groups = ["${aws_security_group.instance_sg.id}", "${var.ssh_sg_id}"]
-  key_name        = "${var.key_name}"
-  user_data       = "${data.template_file.cloud_config.rendered}"
+  lc_name              = "tyk_dashboard"
+  image_id             = "${data.aws_ami.amazonlinux.id}"
+  instance_type        = "${var.instance_type}"
+  security_groups      = ["${aws_security_group.instance_sg.id}", "${var.ssh_sg_id}"]
+  key_name             = "${var.key_name}"
+  user_data            = "${data.template_file.cloud_config.rendered}"
+  iam_instance_profile = "${aws_iam_instance_profile.default.name}"
 
   root_block_device = [
     {

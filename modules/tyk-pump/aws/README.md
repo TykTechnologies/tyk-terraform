@@ -62,3 +62,5 @@ The auto-scaling group will have between 2 and 4 instances with default scaling 
 |------|-------------|
 | asg\_arn | ARN of the auto-scaling group |
 | asg\_name | Name of the auto-scaling group |
+| instance\_profile\_name | Name of the IAM instance profile |
+| instance\_role\_name | Name of the IAM instance role |

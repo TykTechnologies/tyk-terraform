@@ -76,6 +76,8 @@ The load balancer will be provisioned in VPC subnets "subnet-012345c34d32a4ca9" 
 | asg\_arn | ARN of the auto-scaling group |
 | asg\_name | Name of the auto-scaling group |
 | dns\_name | Domain name of the load balancer |
+| instance\_profile\_name | Name of the IAM instance profile |
+| instance\_role\_name | Name of the IAM instance role |
 | lb\_id | ID of the load balancer |
 | lb\_sg\_id | ID of the load balancer security group |
 | sg\_id | ID of the instances security group |
