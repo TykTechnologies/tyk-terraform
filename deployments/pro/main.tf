@@ -47,7 +47,7 @@ module "tyk_dashboard" {
   port                    = "80"
   notifications_port      = "5000"
   dashboard_version       = "1.7.3"
-  gateway_host            = "${local.gateway_region_host}"
+  gateway_host            = "http://${local.gateway_region_host}"
   gateway_port            = "80"
   gateway_secret          = "${random_string.gateway_secret.result}"
   shared_node_secret      = "${random_string.shared_secret.result}"

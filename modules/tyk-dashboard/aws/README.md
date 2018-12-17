@@ -33,7 +33,7 @@ module "tyk_dashboard" {
   port                    = "80"
   notifications_port      = "5000"
   dashboard_version       = "1.7.3"
-  gateway_host            = "gw.host"
+  gateway_host            = "http://gw.host"
   gateway_port            = "80"
   gateway_secret          = "supersecret1"
   shared_node_secret      = "supersecret2"
