@@ -1,3 +1,8 @@
+output "sg_id" {
+  value       = "${aws_security_group.instance_sg.id}"
+  description = "ID of the instances security group"
+}
+
 output "asg_name" {
   value       = "${module.asg.this_autoscaling_group_name}"
   description = "Name of the auto-scaling group"

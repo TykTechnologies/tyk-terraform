@@ -1,3 +1,18 @@
+## Security groups
+
+resource "aws_security_group" "instance_sg" {
+  name   = "tyk_pump_instance"
+  vpc_id = "${var.vpc_id}"
+
+  # "allow all" egress rule is fine for instances too as they need outbound internet access
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
 ## Autoscaling and launch config
 
 data "aws_ami" "amazonlinux" {
@@ -49,7 +64,7 @@ module "asg" {
   lc_name              = "tyk_pump"
   image_id             = "${data.aws_ami.amazonlinux.id}"
   instance_type        = "${var.instance_type}"
-  security_groups      = ["${var.ssh_sg_id}"]
+  security_groups      = ["${aws_security_group.instance_sg.id}", "${var.ssh_sg_id}"]
   key_name             = "${var.key_name}"
   user_data            = "${data.template_file.cloud_config.rendered}"
   iam_instance_profile = "${aws_iam_instance_profile.default.name}"
