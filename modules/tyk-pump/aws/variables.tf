@@ -100,3 +100,8 @@ variable "redis_hosts" {
   description = "Redis cluster connection parameters"
   default     = ""
 }
+
+variable "enable_ssm" {
+  description = "Enable AWS Systems Manager"
+  default = false
+}

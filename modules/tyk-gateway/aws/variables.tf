@@ -129,3 +129,8 @@ variable "enable_detailed_analytics" {
   description = "Enable detailed (request/response) analytics"
   default     = ""
 }
+
+variable "enable_ssm" {
+  description = "Enable AWS Systems Manager"
+  default = false
+}

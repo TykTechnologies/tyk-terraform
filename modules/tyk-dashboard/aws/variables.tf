@@ -177,3 +177,8 @@ variable "license_key" {
   description = "Tyk license"
   default     = ""
 }
+
+variable "enable_ssm" {
+  description = "Enable AWS Systems Manager"
+  default = false
+}

@@ -19,6 +19,13 @@ resource "aws_iam_role" "instance" {
   assume_role_policy = "${data.aws_iam_policy_document.instance_assume_role.json}"
 }
 
+resource "aws_iam_role_policy_attachment" "ssm_role_policy" {
+  role       = "${aws_iam_role.instance}"
+  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
+
+  count = "${var.enable_ssm ? 1 : 0}"
+}
+
 resource "aws_iam_instance_profile" "default" {
   name = "tyk_mdcb_${random_id.iam_id.hex}"
   role = "${aws_iam_role.instance.name}"
