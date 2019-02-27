@@ -49,6 +49,7 @@ The load balancer will be provisioned in VPC subnets "subnet-012345c34d32a4ca9" 
 | create\_scaling\_policies | Create scaling policies and alarm for autoscaling group | string | `false` | no |
 | dashboard\_url | Tyk dashboard URL (leave empty if not used) | string | `` | no |
 | enable\_detailed\_analytics | Enable detailed (request/response) analytics | string | `` | no |
+| enable\_ssm | Enable AWS Systems Manager | string | `false` | no |
 | gateway\_config | Full gateway config file contents (replaces the default config file if set) | string | `` | no |
 | gateway\_secret | Tyk gateway secret | string | `` | no |
 | gateway\_version | Version of Tyk gateway to deploy | string | - | yes |
@@ -59,6 +60,7 @@ The load balancer will be provisioned in VPC subnets "subnet-012345c34d32a4ca9" 
 | lb\_subnets | List of subnets to use for load balancing | list | - | yes |
 | max\_size | Maximum number of instance in autoscaling group | string | `2` | no |
 | min\_size | Minimum number of instances in autoscaling group | string | `1` | no |
+| package\_repository | Repository name for the PackageCloud package | string | `tyk-gateway` | no |
 | port | HTTP port of the gateway | string | `80` | no |
 | redis\_enable\_cluster | Is Redis clustering enabled? | string | `` | no |
 | redis\_host | Redis host | string | `` | no |

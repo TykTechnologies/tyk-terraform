@@ -39,6 +39,7 @@ The auto-scaling group will have between 2 and 4 instances with default scaling 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | create\_scaling\_policies | Create scaling policies and alarm for autoscaling group | string | `false` | no |
+| enable\_ssm | Enable AWS Systems Manager | string | `false` | no |
 | instance\_subnets | List of subnets to use for instances | list | - | yes |
 | instance\_type | EC2 instance type | string | `c5.large` | no |
 | key\_name | EC2 key pair name | string | - | yes |
@@ -46,6 +47,7 @@ The auto-scaling group will have between 2 and 4 instances with default scaling 
 | min\_size | Minimum number of instances in autoscaling group | string | `1` | no |
 | mongo\_url | MongoDB connection string | string | `` | no |
 | mongo\_use\_ssl | Should MongoDB connection use SSL/TLS? | string | `` | no |
+| package\_repository | Repository name for the PackageCloud package | string | `tyk-pump` | no |
 | pump\_config | Full pump config file contents (replaces the default config file if set) | string | `` | no |
 | pump\_version | Version of Tyk pump to deploy | string | - | yes |
 | redis\_enable\_cluster | Is Redis clustering enabled? | string | `` | no |

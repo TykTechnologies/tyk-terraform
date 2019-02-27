@@ -47,6 +47,7 @@ The network load balancer will be provisioned in VPC subnets "subnet-012345c34d3
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | create\_scaling\_policies | Create scaling policies and alarm for autoscaling group | string | `false` | no |
+| enable\_ssm | Enable AWS Systems Manager | string | `false` | no |
 | forward\_to\_pump | Forward analytics to Tyk pump | string | `` | no |
 | ingress\_cidr | CIDR of ingress source | string | `0.0.0.0/0` | no |
 | instance\_subnets | List of subnets to use for instances | list | - | yes |
@@ -61,6 +62,7 @@ The network load balancer will be provisioned in VPC subnets "subnet-012345c34d3
 | min\_size | Minimum number of instances in autoscaling group | string | `1` | no |
 | mongo\_url | MongoDB connection string | string | `` | no |
 | mongo\_use\_ssl | Should MongoDB connection use SSL/TLS? | string | `` | no |
+| package\_repository | Repository name for the PackageCloud package | string | `tyk-mdcb` | no |
 | port | Ingress port of the MDCB | string | `9090` | no |
 | redis\_enable\_cluster | Is Redis clustering enabled? | string | `` | no |
 | redis\_host | Redis host | string | `` | no |

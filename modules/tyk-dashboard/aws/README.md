@@ -59,6 +59,7 @@ The load balancer will be provisioned in VPC subnets "subnet-012345c34d32a4ca9" 
 | create\_scaling\_policies | Create scaling policies and alarm for autoscaling group | string | `false` | no |
 | dashboard\_config | Full dashboard config file contents (replaces the default config file if set) | string | `` | no |
 | dashboard\_version | Version of Tyk dashboard to deploy | string | - | yes |
+| enable\_ssm | Enable AWS Systems Manager | string | `false` | no |
 | gateway\_host | Tyk gateway host | string | `` | no |
 | gateway\_port | Tyk gateway port | string | `` | no |
 | gateway\_secret | Tyk gateway secret | string | `` | no |
@@ -74,6 +75,7 @@ The load balancer will be provisioned in VPC subnets "subnet-012345c34d32a4ca9" 
 | mongo\_url | MongoDB connection string | string | `` | no |
 | mongo\_use\_ssl | Should MongoDB connection use SSL/TLS? | string | `` | no |
 | notifications\_port | Notifications service port | string | `5000` | no |
+| package\_repository | Repository name for the PackageCloud package | string | `tyk-dashboard` | no |
 | port | HTTP port of the dashboard | string | `80` | no |
 | portal\_root | Tyk dashboard portal root path | string | `` | no |
 | redis\_enable\_cluster | Is Redis clustering enabled? | string | `` | no |
