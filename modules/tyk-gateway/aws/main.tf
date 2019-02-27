@@ -112,6 +112,7 @@ data "template_file" "cloud_config" {
   template = "${file("${path.module}/cloud_config.yml")}"
 
   vars {
+    repository                = "${var.package_repository}"
     gateway_version           = "${var.gateway_version}"
     custom_config             = "${base64encode("${var.gateway_config}")}"
     redis_host                = "${var.redis_host}"

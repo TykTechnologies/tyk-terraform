@@ -97,6 +97,7 @@ data "template_file" "cloud_config" {
   template = "${file("${path.module}/cloud_config.yml")}"
 
   vars {
+    repository           = "${var.package_repository}"
     mdcb_version         = "${var.mdcb_version}"
     custom_config        = "${base64encode("${var.mdcb_config}")}"
     mongo_url            = "${var.mongo_url}"

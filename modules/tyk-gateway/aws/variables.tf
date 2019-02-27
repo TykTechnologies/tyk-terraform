@@ -65,6 +65,12 @@ variable "gateway_config" {
   default     = ""
 }
 
+variable "package_repository" {
+  type = "string"
+  description = "Repository name for the PackageCloud package"
+  default = "tyk-gateway"
+}
+
 variable "gateway_version" {
   type        = "string"
   description = "Version of Tyk gateway to deploy"

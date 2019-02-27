@@ -34,7 +34,7 @@ write_files:
     permissions: '0660'
 
 runcmd:
-  - export UNIQUE_ID=`hostname -f` && curl -L "https://${token}:@packagecloud.io/install/repositories/tyk/tyk-mdcb/config_file.repo?os=el&dist=7&name=$UNIQUE_ID" -o /etc/yum.repos.d/tyk_tyk-mdcb.repo
+  - export UNIQUE_ID=`hostname -f` && curl -L "https://${token}:@packagecloud.io/install/repositories/tyk/${repository}/config_file.repo?os=el&dist=7&name=$UNIQUE_ID" -o /etc/yum.repos.d/tyk_${repository}.repo
   - [ yum, update ]
   - [ yum, install, -y, tyk-sink-${mdcb_version}-1 ]
   - [ sh, -c, "[ -s /run/tyk_sink.conf ] || cp /run/tyk_sink.conf /opt/tyk-sink/" ]

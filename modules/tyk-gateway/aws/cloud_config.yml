@@ -5,11 +5,11 @@ repo_upgrade: all
 yum_repos:
   tyk-gateway:
     name: tyk_tyk-gateway
-    baseurl: https://packagecloud.io/tyk/tyk-gateway/el/7/x86_64
+    baseurl: https://packagecloud.io/tyk/${repository}/el/7/x86_64
     enabled: true
     gpgcheck: false
     repo_gpgcheck: true
-    gpgkey: https://packagecloud.io/tyk/tyk-gateway/gpgkey
+    gpgkey: https://packagecloud.io/tyk/${repository}/gpgkey
     sslverify: true
     sslcacert: /etc/pki/tls/certs/ca-bundle.crt
     metadata_expire: 300

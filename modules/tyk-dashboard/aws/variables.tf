@@ -71,6 +71,12 @@ variable "dashboard_config" {
   default     = ""
 }
 
+variable "package_repository" {
+  type = "string"
+  description = "Repository name for the PackageCloud package"
+  default = "tyk-dashboard"
+}
+
 variable "dashboard_version" {
   type        = "string"
   description = "Version of Tyk dashboard to deploy"

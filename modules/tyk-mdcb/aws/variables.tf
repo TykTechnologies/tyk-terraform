@@ -70,6 +70,12 @@ variable "mdcb_token" {
   description = "Repository token for MDCB packages"
 }
 
+variable "package_repository" {
+  type = "string"
+  description = "Repository name for the PackageCloud package"
+  default = "tyk-mdcb"
+}
+
 variable "mdcb_version" {
   type        = "string"
   description = "Version of Tyk MDCB to deploy"
