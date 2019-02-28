@@ -20,7 +20,7 @@ resource "aws_iam_role" "instance" {
 }
 
 resource "aws_iam_role_policy_attachment" "ssm_role_policy" {
-  role       = "${aws_iam_role.instance}"
+  role       = "${aws_iam_role.instance.name}"
   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonEC2RoleforSSM"
 
   count = "${var.enable_ssm ? 1 : 0}"

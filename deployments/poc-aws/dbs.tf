@@ -88,5 +88,10 @@ resource "aws_docdb_cluster" "tyk_docdb" {
   vpc_security_group_ids          = ["${aws_security_group.docdb_sg.id}"]
 }
 
-# TODO: Add DocDB cluster instance definitions once provider is updated
-
+resource "aws_docdb_cluster_instance" "tyk_docdb_instances" {
+  count              = 3
+  identifier         = "docdb-poc${count.index}"
+  cluster_identifier = "${aws_docdb_cluster.tyk_docdb.cluster_identifier}"
+  instance_class     = "db.r4.large"
+  promotion_tier     = "1"
+}
