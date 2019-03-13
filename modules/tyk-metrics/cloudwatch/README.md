@@ -12,8 +12,9 @@ The output can be used as a part in a multi-part `template_cloudinit_config` Ter
 module "tyk_cloudwatch_gateway" {
   source = "modules/tyk-metrics/cloudwatch"
 
-  program_name     = "tyk-gateway"
-  log_group_prefix = "tyk-pro-us-east-1"
+  program_name      = "tyk"
+  log_group_prefix  = "tyk-pro-us-east-1"
+  metrics_namespace = "TykGateway"
 }
 ```
 
@@ -38,7 +39,7 @@ module "tyk_gateway" {
 |------|-------------|:----:|:-----:|:-----:|
 | log\_group\_prefix | CloudWatch Logs group name prefix | string | `tyk` | no |
 | metrics\_namespace | Namespace for custom metrics | string | `TykMetrics` | no |
-| program\_name | Program name to filter the logs by logs | string | - | yes |
+| program\_name | Program name to filter the logs by | string | - | yes |
 
 ## Outputs
 

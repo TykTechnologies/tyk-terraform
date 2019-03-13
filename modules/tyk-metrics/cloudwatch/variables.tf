@@ -1,6 +1,6 @@
 variable "program_name" {
   type        = "string"
-  description = "Program name to filter the logs by logs"
+  description = "Program name to filter the logs by"
 }
 
 variable "log_group_prefix" {
