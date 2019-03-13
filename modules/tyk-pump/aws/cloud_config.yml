@@ -30,17 +30,20 @@ write_files:
       ${mongo_use_ssl != "" ? "PMP_MONGO_MONGOUSESSL=\"${mongo_use_ssl}\"" : ""}
       ${mongo_url != "" ? "PMP_MONGOAGG_MONGOURL=\"${mongo_url}\"" : ""}
       ${mongo_use_ssl != "" ? "PMP_MONGOAGG_MONGOUSESSL=\"${mongo_use_ssl}\"" : ""}
+      ${statsd_conn_str != "" ? "TYK_INSTRUMENTATION=\"1\"" : ""}
+      ${statsd_conn_str != "" ? "TYK_PMP_STATSDCONNECTIONSTRING=\"${statsd_conn_str}\"" : ""}
+      ${statsd_prefix != "" ? "TYK_PMP_STATSDPREFIX=\"${statsd_prefix}\"" : ""}
     path: /etc/default/tyk-pump
     owner: root:root
     permissions: '0660'
-  - content: ${custom_config}
+  - content: ${custom_config != "" ? "${custom_config}" : "''"}
     encoding: b64
     path: /run/pump.conf
-    owner: tyk:tyk
+    owner: root:root
     permissions: '0660'
 
 runcmd:
   - [ sh, /opt/tyk-pump/install/setup.sh ]
-  - [ sh, -c, "[ -s /run/pump.conf ] || cp /run/pump.conf /opt/tyk-pump/" ]
+  - [ sh, -c, "[ -s /run/pump.conf ] && cp /run/pump.conf /opt/tyk-pump/ && chown tyk:tyk /opt/tyk-pump/pump.conf" ]
   - [ systemctl, start, tyk-pump ]
   - [ systemctl, enable, tyk-pump ]

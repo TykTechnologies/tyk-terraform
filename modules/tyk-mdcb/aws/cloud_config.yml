@@ -24,20 +24,23 @@ write_files:
       ${mongo_use_ssl != "" ? "TYK_MDCB_ANALYTICSCONFIG_MONGOUSESSL=\"${mongo_use_ssl}\"" : ""}
       ${forward_to_pump != "" ? "TYK_MDCB_FORWARDANALYTICSTOPUMP=\"${forward_to_pump}\"" : ""}
       ${license_key != "" ? "TYK_MDCB_LICENSE=\"${license_key}\"" : ""}
+      ${statsd_conn_str != "" ? "TYK_INSTRUMENTATION=\"1\"" : ""}
+      ${statsd_conn_str != "" ? "TYK_MDCB_STATSDCONNECTIONSTRING=\"${statsd_conn_str}\"" : ""}
+      ${statsd_prefix != "" ? "TYK_MDCB_STATSDPREFIX=\"${statsd_prefix}\"" : ""}
     path: /etc/default/tyk-sink
     owner: root:root
     permissions: '0660'
-  - content: ${custom_config}
+  - content: ${custom_config != "" ? "${custom_config}" : "''"}
     encoding: b64
     path: /run/tyk_sink.conf
-    owner: tyk:tyk
+    owner: root:root
     permissions: '0660'
 
 runcmd:
   - export UNIQUE_ID=`hostname -f` && curl -L "https://${token}:@packagecloud.io/install/repositories/tyk/${repository}/config_file.repo?os=el&dist=7&name=$UNIQUE_ID" -o /etc/yum.repos.d/tyk_${repository}.repo
   - [ yum, update ]
   - [ yum, install, -y, tyk-sink-${mdcb_version}-1 ]
-  - [ sh, -c, "[ -s /run/tyk_sink.conf ] || cp /run/tyk_sink.conf /opt/tyk-sink/" ]
+  - [ sh, -c, "[ -s /run/tyk_sink.conf ] && cp /run/tyk_sink.conf /opt/tyk-sink/ && chown tyk:tyk /opt/tyk-sink/tyk_sink.conf" ]
   - [ systemctl, daemon-reload ]
   - [ systemctl, start, tyk-sink ]
   - [ systemctl, enable, tyk-sink ]

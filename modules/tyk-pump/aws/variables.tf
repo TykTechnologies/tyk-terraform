@@ -49,9 +49,9 @@ variable "pump_config" {
 }
 
 variable "package_repository" {
-  type = "string"
+  type        = "string"
   description = "Repository name for the PackageCloud package"
-  default = "tyk-pump"
+  default     = "tyk-pump"
 }
 
 variable "pump_version" {
@@ -103,5 +103,28 @@ variable "redis_hosts" {
 
 variable "enable_ssm" {
   description = "Enable AWS Systems Manager"
-  default = false
+  default     = false
+}
+
+variable "enable_cloudwatch_policy" {
+  description = "Enable CloudWatch agent IAM policy for the instance profile"
+  default     = false
+}
+
+variable "metrics_cloudconfig" {
+  type        = "string"
+  description = "Rendered cloud-init config for metrics and logs collection setup"
+  default     = ""
+}
+
+variable "statsd_conn_str" {
+  type        = "string"
+  description = "Connection string for statsd instrumentation"
+  default     = ""
+}
+
+variable "statsd_prefix" {
+  type        = "string"
+  description = "Prefix for statsd metrics"
+  default     = "tykPMP"
 }

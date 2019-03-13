@@ -68,9 +68,9 @@ resource "aws_docdb_cluster_parameter_group" "tyk_params" {
 }
 
 resource "random_string" "docdb_password" {
-  length  = 16
-  special = true
-  override_special = "!#$%&*()-_=+[]{}<>:?"  # DocDB doesn't allow  / (slash), " (double quote) or @ (at symbol)
+  length           = 16
+  special          = true
+  override_special = "!#$%&*()-_=+[]{}<>:?" # DocDB doesn't allow  / (slash), " (double quote) or @ (at symbol)
 }
 
 resource "aws_docdb_cluster" "tyk_docdb" {

@@ -7,6 +7,7 @@ See more at:
  * [Dashboard on AWS](modules/tyk-dashboard/aws/)
  * [Pump on AWS](modules/tyk-pump/aws/)
  * [MDCB on AWS](modules/tyk-mdcb/aws/)
+ * [AWS CloudWatch logs and metrics for Tyk](modules/tyk-metrics/cloudwatch)
 
 Full deployment examples are available in the deployments directory.
 

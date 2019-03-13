@@ -56,14 +56,18 @@ The load balancer will be provisioned in VPC subnets "subnet-012345c34d32a4ca9" 
 |------|-------------|:----:|:-----:|:-----:|
 | admin\_secret | Tyk dashboard admin API secret | string | `` | no |
 | api\_hostname | API hostname | string | `` | no |
+| certificate\_arn | ARN of the TLS certificate resource in ACM (required if enable_https is true) | string | `` | no |
 | create\_scaling\_policies | Create scaling policies and alarm for autoscaling group | string | `false` | no |
 | dashboard\_config | Full dashboard config file contents (replaces the default config file if set) | string | `` | no |
 | dashboard\_version | Version of Tyk dashboard to deploy | string | - | yes |
+| enable\_cloudwatch\_policy | Enable CloudWatch agent IAM policy for the instance profile | string | `false` | no |
+| enable\_https | Enable HTTPS listener on the ALB | string | `false` | no |
 | enable\_ssm | Enable AWS Systems Manager | string | `false` | no |
 | gateway\_host | Tyk gateway host | string | `` | no |
 | gateway\_port | Tyk gateway port | string | `` | no |
 | gateway\_secret | Tyk gateway secret | string | `` | no |
 | hostname | Tyk dashboard hostname | string | `` | no |
+| https\_port | HTTPS listener port | string | `443` | no |
 | ingress\_cidr | CIDR of ingress source | string | `0.0.0.0/0` | no |
 | instance\_subnets | List of subnets to use for instances | list | - | yes |
 | instance\_type | EC2 instance type | string | `c5.large` | no |
@@ -71,10 +75,10 @@ The load balancer will be provisioned in VPC subnets "subnet-012345c34d32a4ca9" 
 | lb\_subnets | List of subnets to use for load balancing | list | - | yes |
 | license\_key | Tyk license | string | `` | no |
 | max\_size | Maximum number of instance in autoscaling group | string | `2` | no |
+| metrics\_cloudconfig | Rendered cloud-init config for metrics and logs collection setup | string | `` | no |
 | min\_size | Minimum number of instances in autoscaling group | string | `1` | no |
 | mongo\_url | MongoDB connection string | string | `` | no |
 | mongo\_use\_ssl | Should MongoDB connection use SSL/TLS? | string | `` | no |
-| notifications\_port | Notifications service port | string | `5000` | no |
 | package\_repository | Repository name for the PackageCloud package | string | `tyk-dashboard` | no |
 | port | HTTP port of the dashboard | string | `80` | no |
 | portal\_root | Tyk dashboard portal root path | string | `` | no |
@@ -85,6 +89,9 @@ The load balancer will be provisioned in VPC subnets "subnet-012345c34d32a4ca9" 
 | redis\_port | Redis port | string | `` | no |
 | shared\_node\_secret | Shared gateway-dashboard secret for API definitions | string | `` | no |
 | ssh\_sg\_id | Security group for SSH access | string | `` | no |
+| statsd\_conn\_str | Connection string for statsd instrumentation | string | `` | no |
+| statsd\_prefix | Prefix for statsd metrics | string | `tykDB` | no |
+| tls\_policy | The name of the TLS policy for the listener (defaults to TLSv1.2 with modern cipher suite, modify for your needs) | string | `ELBSecurityPolicy-TLS-1-2-2017-01` | no |
 | vpc\_id | VPC to use for Tyk dashboard | string | - | yes |
 
 ## Outputs

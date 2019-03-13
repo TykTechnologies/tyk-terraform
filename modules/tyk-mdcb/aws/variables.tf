@@ -71,9 +71,9 @@ variable "mdcb_token" {
 }
 
 variable "package_repository" {
-  type = "string"
+  type        = "string"
   description = "Repository name for the PackageCloud package"
-  default = "tyk-mdcb"
+  default     = "tyk-mdcb"
 }
 
 variable "mdcb_version" {
@@ -137,5 +137,51 @@ variable "license_key" {
 
 variable "enable_ssm" {
   description = "Enable AWS Systems Manager"
-  default = false
+  default     = false
+}
+
+variable "enable_tls" {
+  description = "Enable TLS listener on the NLB"
+  default     = false
+}
+
+variable "tls_port" {
+  type        = "string"
+  description = "TLS listener port"
+  default     = "443"
+}
+
+variable "certificate_arn" {
+  type        = "string"
+  description = "ARN of the TLS certificate resource in ACM (required if enable_tls is true)"
+  default     = ""
+}
+
+variable "tls_policy" {
+  type        = "string"
+  description = "The name of the TLS policy for the listener (defaults to TLSv1.2 with modern cipher suite, modify for your needs)"
+  default     = "ELBSecurityPolicy-TLS-1-2-2017-01"
+}
+
+variable "enable_cloudwatch_policy" {
+  description = "Enable CloudWatch agent IAM policy for the instance profile"
+  default     = false
+}
+
+variable "metrics_cloudconfig" {
+  type        = "string"
+  description = "Rendered cloud-init config for metrics and logs collection setup"
+  default     = ""
+}
+
+variable "statsd_conn_str" {
+  type        = "string"
+  description = "Connection string for statsd instrumentation"
+  default     = ""
+}
+
+variable "statsd_prefix" {
+  type        = "string"
+  description = "Prefix for statsd metrics"
+  default     = "tykMDCB"
 }

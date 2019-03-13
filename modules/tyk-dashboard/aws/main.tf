@@ -12,11 +12,18 @@ resource "aws_security_group" "lb_sg" {
   }
 
   ingress {
-    from_port   = "${var.notifications_port}"
-    to_port     = "${var.notifications_port}"
+    from_port   = "${var.https_port}"
+    to_port     = "${var.https_port}"
     protocol    = "tcp"
     cidr_blocks = ["${var.ingress_cidr}"]
   }
+
+  # ingress {
+  #   from_port   = "${var.notifications_port}"
+  #   to_port     = "${var.notifications_port}"
+  #   protocol    = "tcp"
+  #   cidr_blocks = ["${var.ingress_cidr}"]
+  # }
 
   # "allow all" egress rule is fine for LB as listeners do the routing
   egress {
@@ -38,12 +45,12 @@ resource "aws_security_group" "instance_sg" {
     security_groups = ["${aws_security_group.lb_sg.id}"]
   }
 
-  ingress {
-    from_port       = 5000
-    to_port         = 5000
-    protocol        = "tcp"
-    security_groups = ["${aws_security_group.lb_sg.id}"]
-  }
+  # ingress {
+  #   from_port       = "${var.notifications_port}"
+  #   to_port         = "${var.notifications_port}"
+  #   protocol        = "tcp"
+  #   security_groups = ["${aws_security_group.lb_sg.id}"]
+  # }
 
   # "allow all" egress rule is fine for instances too as they need outbound internet access
   egress {
@@ -72,23 +79,23 @@ resource "aws_lb_target_group" "web_group" {
   }
 }
 
-resource "aws_lb_target_group" "notification_group" {
-  name     = "tyk-dashboard-notification"
-  port     = 5000
-  protocol = "HTTP"
-  vpc_id   = "${var.vpc_id}"
+# resource "aws_lb_target_group" "notification_group" {
+#   name     = "tyk-dashboard-notification"
+#   port     = "${var.notifications_port}"
+#   protocol = "HTTP"
+#   vpc_id   = "${var.vpc_id}"
 
-  health_check {
-    path                = "/"
-    port                = 3000
-    protocol            = "HTTP"
-    interval            = 10
-    timeout             = 5
-    healthy_threshold   = 3
-    unhealthy_threshold = 2
-    matcher             = "200"
-  }
-}
+#   health_check {
+#     path                = "/"
+#     port                = 3000
+#     protocol            = "HTTP"
+#     interval            = 10
+#     timeout             = 5
+#     healthy_threshold   = 3
+#     unhealthy_threshold = 2
+#     matcher             = "200"
+#   }
+# }
 
 resource "aws_lb" "lb" {
   name               = "tyk-dashboard"
@@ -114,16 +121,31 @@ resource "aws_lb_listener" "web_listener" {
   }
 }
 
-resource "aws_lb_listener" "notification_listener" {
+resource "aws_lb_listener" "web_https_listener" {
   load_balancer_arn = "${aws_lb.lb.arn}"
-  port              = "${var.notifications_port}"
-  protocol          = "HTTP"
+  port              = "${var.https_port}"
+  protocol          = "HTTPS"
+  ssl_policy        = "${var.tls_policy}"
+  certificate_arn   = "${var.certificate_arn}"
 
   default_action {
     type             = "forward"
-    target_group_arn = "${aws_lb_target_group.notification_group.arn}"
+    target_group_arn = "${aws_lb_target_group.web_group.arn}"
   }
+
+  count = "${var.enable_https ? 1 : 0}"
 }
+
+# resource "aws_lb_listener" "notification_listener" {
+#   load_balancer_arn = "${aws_lb.lb.arn}"
+#   port              = "${var.notifications_port}"
+#   protocol          = "HTTP"
+
+#   default_action {
+#     type             = "forward"
+#     target_group_arn = "${aws_lb_target_group.notification_group.arn}"
+#   }
+# }
 
 ## Autoscaling and launch config
 
@@ -174,6 +196,29 @@ data "template_file" "cloud_config" {
     hostname             = "${var.hostname}"
     api_hostname         = "${var.api_hostname}"
     portal_root          = "${var.portal_root}"
+    enable_https         = "${var.enable_https}"
+
+    # notifications_port   = "${var.notifications_port}"
+    statsd_conn_str = "${var.statsd_conn_str}"
+    statsd_prefix   = "${var.statsd_prefix}"
+  }
+}
+
+data "template_cloudinit_config" "merged_cloud_config" {
+  gzip          = false
+  base64_encode = false
+
+  part {
+    filename     = "main.cfg"
+    content_type = "text/cloud-config"
+    content      = "${data.template_file.cloud_config.rendered}"
+  }
+
+  part {
+    filename     = "metrics.cfg"
+    content_type = "text/cloud-config"
+    content      = "${var.metrics_cloudconfig}"
+    merge_type   = "list(append)+dict(recurse_array)+str()"
   }
 }
 
@@ -188,7 +233,7 @@ module "asg" {
   instance_type        = "${var.instance_type}"
   security_groups      = ["${aws_security_group.instance_sg.id}", "${var.ssh_sg_id}"]
   key_name             = "${var.key_name}"
-  user_data            = "${data.template_file.cloud_config.rendered}"
+  user_data            = "${data.template_cloudinit_config.merged_cloud_config.rendered}"
   iam_instance_profile = "${aws_iam_instance_profile.default.name}"
 
   root_block_device = [
@@ -206,9 +251,9 @@ module "asg" {
   max_size                     = "${var.max_size}"
   desired_capacity             = "${var.min_size}"
   wait_for_capacity_timeout    = "5m"
-  recreate_asg_when_lc_changes = true                                                                                      # Enables Blue/Green deployments, TODO: possibly marry CloudFormation for rolling upgrades
+  recreate_asg_when_lc_changes = true                                     # Enables Blue/Green deployments, TODO: possibly marry CloudFormation for rolling upgrades
   min_elb_capacity             = "${var.min_size}"
-  target_group_arns            = ["${aws_lb_target_group.web_group.arn}", "${aws_lb_target_group.notification_group.arn}"]
+  target_group_arns            = ["${aws_lb_target_group.web_group.arn}"]
 }
 
 resource "aws_autoscaling_policy" "scale_up" {

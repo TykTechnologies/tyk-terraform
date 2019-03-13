@@ -26,6 +26,13 @@ resource "aws_iam_role_policy_attachment" "ssm_role_policy" {
   count = "${var.enable_ssm ? 1 : 0}"
 }
 
+resource "aws_iam_role_policy_attachment" "cloudwatch_agent_instance_role" {
+  role       = "${aws_iam_role.instance.name}"
+  policy_arn = "arn:aws:iam::aws:policy/CloudWatchAgentServerPolicy"
+
+  count = "${var.enable_cloudwatch_policy ? 1 : 0}"
+}
+
 resource "aws_iam_instance_profile" "default" {
   name = "tyk_mdcb_${random_id.iam_id.hex}"
   role = "${aws_iam_role.instance.name}"

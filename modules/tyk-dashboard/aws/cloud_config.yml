@@ -37,17 +37,23 @@ write_files:
       ${hostname != "" ? "TYK_DB_HOSTCONFIG_HOSTNAME=\"${hostname}\"" : ""}
       ${api_hostname != "" ? "TYK_DB_HOSTCONFIG_GATEWAYHOSTNAME=\"${api_hostname}\"" : ""}
       ${portal_root != "" ? "TYK_DB_HOSTCONFIG_PORTALROOTPATH=\"${portal_root}\"" : ""}
+      ${enable_https != "" ? "TYK_DB_HOSTCONFIG_GENERATEHTTPS=\"true\"" : ""}
+      ${enable_https != "" ? "TYK_DB_HOSTCONFIG_SECURECOOKIES=\"true\"" : ""}
+      ${statsd_conn_str != "" ? "TYK_INSTRUMENTATION=\"1\"" : ""}
+      ${statsd_conn_str != "" ? "TYK_DB_STATSDCONNECTIONSTRING=\"${statsd_conn_str}\"" : ""}
+      ${statsd_prefix != "" ? "TYK_DB_STATSDPREFIX=\"${statsd_prefix}\"" : ""}
+      TYK_DB_NOTIFICATIONSLISTENPORT="-1"
     path: /etc/default/tyk-dashboard
     owner: root:root
     permissions: '0660'
-  - content: ${custom_config}
+  - content: ${custom_config != "" ? "${custom_config}" : "''"}
     encoding: b64
     path: /run/tyk_analytics.conf
-    owner: tyk:tyk
+    owner: root:root
     permissions: '0660'
 
 runcmd:
   - [ sh, /opt/tyk-dashboard/install/setup.sh, --listenport=3000 ]
-  - [ sh, -c, "[ -s /run/tyk_analytics.conf ] || cp /run/tyk_analytics.conf /opt/tyk-dashboard/" ]
+  - [ sh, -c, "[ -s /run/tyk_analytics.conf ] && cp /run/tyk_analytics.conf /opt/tyk-dashboard/ && chown tyk:tyk /opt/tyk-dashboard/tyk_analytics.conf" ]
   - [ systemctl, start, tyk-dashboard ]
   - [ systemctl, enable, tyk-dashboard ]

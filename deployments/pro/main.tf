@@ -26,6 +26,13 @@ resource "random_string" "admin_secret" {
   special = true
 }
 
+module "tyk_cloudwatch_dashboard" {
+  source = "../../modules/tyk-metrics/cloudwatch"
+
+  program_name     = "tyk-analytics"
+  log_group_prefix = "tyk-pro-${var.aws_region}"
+}
+
 module "tyk_dashboard" {
   source = "../../modules/tyk-dashboard/aws"
 
@@ -46,16 +53,25 @@ module "tyk_dashboard" {
   max_size                = 4
   create_scaling_policies = true
   port                    = "80"
-  notifications_port      = "5000"
-  dashboard_version       = "1.7.3"
-  gateway_host            = "http://${local.gateway_region_host}"
-  gateway_port            = "80"
-  gateway_secret          = "${random_string.gateway_secret.result}"
-  shared_node_secret      = "${random_string.shared_secret.result}"
-  admin_secret            = "${random_string.admin_secret.result}"
-  hostname                = "admin.${var.base_domain}"
-  api_hostname            = "gw.${var.base_domain}"
-  portal_root             = "/portal"
+
+  # notifications_port      = "5000"
+  dashboard_version  = "1.7.5"
+  gateway_host       = "http://${local.gateway_region_host}"
+  gateway_port       = "80"
+  gateway_secret     = "${random_string.gateway_secret.result}"
+  shared_node_secret = "${random_string.shared_secret.result}"
+  admin_secret       = "${random_string.admin_secret.result}"
+  hostname           = "admin.${var.base_domain}"
+  api_hostname       = "gw.${var.base_domain}"
+  portal_root        = "/portal"
+
+  enable_ssm               = true
+  enable_cloudwatch_policy = true
+  enable_https             = true
+  certificate_arn          = "${var.tls_certificate_arn}"
+  metrics_cloudconfig      = "${module.tyk_cloudwatch_dashboard.cloud_config}"
+  statsd_conn_str          = "localhost:8125"
+  statsd_prefix            = "${var.aws_region}.tykDashboard"
 }
 
 resource "aws_route53_record" "dashboard_region" {
@@ -68,6 +84,13 @@ resource "aws_route53_record" "dashboard_region" {
     zone_id                = "${module.tyk_dashboard.zone_id}"
     evaluate_target_health = true
   }
+}
+
+module "tyk_cloudwatch_gateway" {
+  source = "../../modules/tyk-metrics/cloudwatch"
+
+  program_name     = "tyk"
+  log_group_prefix = "tyk-pro-${var.aws_region}"
 }
 
 module "tyk_gateway" {
@@ -87,11 +110,19 @@ module "tyk_gateway" {
   max_size                  = 4
   create_scaling_policies   = true
   port                      = "80"
-  gateway_version           = "2.7.4"
+  gateway_version           = "2.7.6"
   gateway_secret            = "${random_string.gateway_secret.result}"
   shared_node_secret        = "${random_string.shared_secret.result}"
   dashboard_url             = "http://${module.tyk_dashboard.dns_name}:80"
   enable_detailed_analytics = "false"
+
+  enable_ssm               = true
+  enable_cloudwatch_policy = true
+  enable_https             = true
+  certificate_arn          = "${var.tls_certificate_arn}"
+  metrics_cloudconfig      = "${module.tyk_cloudwatch_gateway.cloud_config}"
+  statsd_conn_str          = "localhost:8125"
+  statsd_prefix            = "${var.aws_region}.tykGateway"
 }
 
 resource "aws_route53_record" "gateway_region" {
@@ -104,6 +135,13 @@ resource "aws_route53_record" "gateway_region" {
     zone_id                = "${module.tyk_gateway.zone_id}"
     evaluate_target_health = true
   }
+}
+
+module "tyk_cloudwatch_pump" {
+  source = "../../modules/tyk-metrics/cloudwatch"
+
+  program_name     = "tyk-pump"
+  log_group_prefix = "tyk-pro-${var.aws_region}"
 }
 
 module "tyk_pump" {
@@ -124,6 +162,19 @@ module "tyk_pump" {
   max_size                = 4
   create_scaling_policies = true
   pump_version            = "0.5.4"
+
+  enable_ssm               = true
+  enable_cloudwatch_policy = true
+  metrics_cloudconfig      = "${module.tyk_cloudwatch_pump.cloud_config}"
+  statsd_conn_str          = "localhost:8125"
+  statsd_prefix            = "${var.aws_region}.tykPump"
+}
+
+module "tyk_cloudwatch_mdcb" {
+  source = "../../modules/tyk-metrics/cloudwatch"
+
+  program_name     = "tyk-sink"
+  log_group_prefix = "tyk-pro-${var.aws_region}"
 }
 
 module "tyk_mdcb" {
@@ -149,6 +200,14 @@ module "tyk_mdcb" {
   port                    = "9090"
   mdcb_version            = "1.5.7"
   forward_to_pump         = "true"
+
+  enable_ssm               = true
+  enable_cloudwatch_policy = true
+  enable_tls               = true
+  certificate_arn          = "${var.tls_certificate_arn}"
+  metrics_cloudconfig      = "${module.tyk_cloudwatch_mdcb.cloud_config}"
+  statsd_conn_str          = "localhost:8125"
+  statsd_prefix            = "${var.aws_region}.tykMDCB"
 }
 
 resource "aws_route53_record" "mdcb_region" {

@@ -102,3 +102,9 @@ variable "mdcb_token" {
   description = "Repository token for MDCB packages"
   default     = ""
 }
+
+variable "tls_certificate_arn" {
+  type        = "string"
+  description = "ARN of the TLS certificate resource in ACM"
+  default     = ""
+}

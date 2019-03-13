@@ -39,10 +39,13 @@ write_files:
       ${dashboard_url != "" ? "TYK_GW_POLICIES_POLICYCONNECTIONSTRING=\"${dashboard_url}\"" : ""}
       ${dashboard_url != "" ? "TYK_GW_DISABLEDASHBOARDZEROCONF=\"true\"" : ""}
       ${enable_detailed_analytics != "" ? "TYK_GW_ANALYTICSCONFIG_ENABLEDETAILEDRECORDING=\"${enable_detailed_analytics}\"" : ""}
+      ${statsd_conn_str != "" ? "TYK_INSTRUMENTATION=\"1\"" : ""}
+      ${statsd_conn_str != "" ? "TYK_GW_STATSDCONNECTIONSTRING=\"${statsd_conn_str}\"" : ""}
+      ${statsd_prefix != "" ? "TYK_GW_STATSDPREFIX=\"${statsd_prefix}\"" : ""}
     path: /etc/default/tyk-gateway
     owner: root:root
     permissions: '0660'
-  - content: ${custom_config}
+  - content: ${custom_config != "" ? "${custom_config}" : "''"}
     encoding: b64
     path: /run/tyk.conf
     owner: root:root
@@ -50,7 +53,7 @@ write_files:
 
 runcmd:
   - [ sh, /opt/tyk-gateway/install/setup.sh, --dashboard=${dashboard_url != "" ? "1" : ""}, --listenport=8080 ]
-  - [ sh, -c, "[ -s /run/tyk.conf ] || cp /run/tyk.conf /opt/tyk-gateway/" ]
+  - [ sh, -c, "[ -s /run/tyk.conf ] && cp /run/tyk.conf /opt/tyk-gateway/" ]
   - [ systemctl, daemon-reload ]
   - [ systemctl, start, tyk-gateway ]
   - [ systemctl, enable, tyk-gateway ]

@@ -1,0 +1,23 @@
+#cloud-config
+write_files:
+  - content: ${cloudwatch_config}
+    encoding: b64
+    path: /etc/aws_cloudwatch.conf
+    owner: root:root
+    permissions: '0664'
+  - content: ${rsyslog_config}
+    encoding: b64
+    path: /etc/rsyslog.d/99-${program}.conf
+    owner: root:root
+    permissions: '0664'
+  - content: ${logrotate_config}
+    encoding: b64
+    path: /etc/logrotate.d/${program}
+    owner: root:root
+    permissions: '0664'
+
+runcmd:
+  - [ systemctl, restart, rsyslog ]
+  - [ wget, "https://s3.amazonaws.com/amazoncloudwatch-agent/amazon_linux/amd64/latest/amazon-cloudwatch-agent.rpm" ]
+  - [ rpm, -U, ./amazon-cloudwatch-agent.rpm ]
+  - [ /opt/aws/amazon-cloudwatch-agent/bin/amazon-cloudwatch-agent-ctl, -a, fetch-config, -m, ec2, -c, "file:/etc/aws_cloudwatch.conf", -s ]

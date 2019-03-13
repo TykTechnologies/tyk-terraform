@@ -11,6 +11,13 @@ resource "aws_security_group" "instance_sg" {
     cidr_blocks = ["${var.ingress_cidr}"]
   }
 
+  ingress {
+    from_port   = "${var.tls_port}"
+    to_port     = "${var.tls_port}"
+    protocol    = "tcp"
+    cidr_blocks = ["${var.ingress_cidr}"]
+  }
+
   # HTTP health check port
   ingress {
     from_port   = 8181
@@ -67,6 +74,21 @@ resource "aws_lb_listener" "web_listener" {
   }
 }
 
+resource "aws_lb_listener" "web_tls_listener" {
+  load_balancer_arn = "${aws_lb.lb.arn}"
+  port              = "${var.tls_port}"
+  protocol          = "TLS"
+  ssl_policy        = "${var.tls_policy}"
+  certificate_arn   = "${var.certificate_arn}"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = "${aws_lb_target_group.web_group.arn}"
+  }
+
+  count = "${var.enable_tls ? 1 : 0}"
+}
+
 ## Autoscaling and launch config
 
 data "aws_ami" "amazonlinux" {
@@ -110,6 +132,26 @@ data "template_file" "cloud_config" {
     forward_to_pump      = "${var.forward_to_pump}"
     license_key          = "${var.license_key}"
     token                = "${var.mdcb_token}"
+    statsd_conn_str      = "${var.statsd_conn_str}"
+    statsd_prefix        = "${var.statsd_prefix}"
+  }
+}
+
+data "template_cloudinit_config" "merged_cloud_config" {
+  gzip          = false
+  base64_encode = false
+
+  part {
+    filename     = "main.cfg"
+    content_type = "text/cloud-config"
+    content      = "${data.template_file.cloud_config.rendered}"
+  }
+
+  part {
+    filename     = "metrics.cfg"
+    content_type = "text/cloud-config"
+    content      = "${var.metrics_cloudconfig}"
+    merge_type   = "list(append)+dict(recurse_array)+str()"
   }
 }
 
@@ -124,7 +166,7 @@ module "asg" {
   instance_type        = "${var.instance_type}"
   security_groups      = ["${aws_security_group.instance_sg.id}", "${var.ssh_sg_id}"]
   key_name             = "${var.key_name}"
-  user_data            = "${data.template_file.cloud_config.rendered}"
+  user_data            = "${data.template_cloudinit_config.merged_cloud_config.rendered}"
   iam_instance_profile = "${aws_iam_instance_profile.default.name}"
 
   root_block_device = [

@@ -53,6 +53,26 @@ data "template_file" "cloud_config" {
     redis_password       = "${var.redis_password}"
     redis_enable_cluster = "${var.redis_enable_cluster}"
     redis_hosts          = "${var.redis_hosts}"
+    statsd_conn_str      = "${var.statsd_conn_str}"
+    statsd_prefix        = "${var.statsd_prefix}"
+  }
+}
+
+data "template_cloudinit_config" "merged_cloud_config" {
+  gzip          = false
+  base64_encode = false
+
+  part {
+    filename     = "main.cfg"
+    content_type = "text/cloud-config"
+    content      = "${data.template_file.cloud_config.rendered}"
+  }
+
+  part {
+    filename     = "metrics.cfg"
+    content_type = "text/cloud-config"
+    content      = "${var.metrics_cloudconfig}"
+    merge_type   = "list(append)+dict(recurse_array)+str()"
   }
 }
 
@@ -67,7 +87,7 @@ module "asg" {
   instance_type        = "${var.instance_type}"
   security_groups      = ["${aws_security_group.instance_sg.id}", "${var.ssh_sg_id}"]
   key_name             = "${var.key_name}"
-  user_data            = "${data.template_file.cloud_config.rendered}"
+  user_data            = "${data.template_cloudinit_config.merged_cloud_config.rendered}"
   iam_instance_profile = "${aws_iam_instance_profile.default.name}"
 
   root_block_device = [

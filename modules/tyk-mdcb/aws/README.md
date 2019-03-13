@@ -46,8 +46,11 @@ The network load balancer will be provisioned in VPC subnets "subnet-012345c34d3
 
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
+| certificate\_arn | ARN of the TLS certificate resource in ACM (required if enable_tls is true) | string | `` | no |
 | create\_scaling\_policies | Create scaling policies and alarm for autoscaling group | string | `false` | no |
+| enable\_cloudwatch\_policy | Enable CloudWatch agent IAM policy for the instance profile | string | `false` | no |
 | enable\_ssm | Enable AWS Systems Manager | string | `false` | no |
+| enable\_tls | Enable TLS listener on the NLB | string | `false` | no |
 | forward\_to\_pump | Forward analytics to Tyk pump | string | `` | no |
 | ingress\_cidr | CIDR of ingress source | string | `0.0.0.0/0` | no |
 | instance\_subnets | List of subnets to use for instances | list | - | yes |
@@ -59,6 +62,7 @@ The network load balancer will be provisioned in VPC subnets "subnet-012345c34d3
 | mdcb\_config | Full MDCB config file contents (replaces the default config file if set) | string | `` | no |
 | mdcb\_token | Repository token for MDCB packages | string | - | yes |
 | mdcb\_version | Version of Tyk MDCB to deploy | string | - | yes |
+| metrics\_cloudconfig | Rendered cloud-init config for metrics and logs collection setup | string | `` | no |
 | min\_size | Minimum number of instances in autoscaling group | string | `1` | no |
 | mongo\_url | MongoDB connection string | string | `` | no |
 | mongo\_use\_ssl | Should MongoDB connection use SSL/TLS? | string | `` | no |
@@ -70,6 +74,10 @@ The network load balancer will be provisioned in VPC subnets "subnet-012345c34d3
 | redis\_password | Redis password | string | `` | no |
 | redis\_port | Redis port | string | `` | no |
 | ssh\_sg\_id | Security group for SSH access | string | `` | no |
+| statsd\_conn\_str | Connection string for statsd instrumentation | string | `` | no |
+| statsd\_prefix | Prefix for statsd metrics | string | `tykMDCB` | no |
+| tls\_policy | The name of the TLS policy for the listener (defaults to TLSv1.2 with modern cipher suite, modify for your needs) | string | `ELBSecurityPolicy-TLS-1-2-2017-01` | no |
+| tls\_port | TLS listener port | string | `443` | no |
 | vpc\_id | VPC to use for Tyk MDCB | string | - | yes |
 
 ## Outputs
