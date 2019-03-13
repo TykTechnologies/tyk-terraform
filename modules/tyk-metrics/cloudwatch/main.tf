@@ -20,6 +20,7 @@ data "template_file" "cloudwatch_config" {
   vars {
     program          = "${var.program_name}"
     log_group_prefix = "${var.log_group_prefix}"
+    namespace        = "${var.metrics_namespace}"
   }
 }
 

@@ -8,3 +8,9 @@ variable "log_group_prefix" {
   description = "CloudWatch Logs group name prefix"
   default     = "tyk"
 }
+
+variable "metrics_namespace" {
+  type        = "string"
+  description = "Namespace for custom metrics"
+  default     = "TykMetrics"
+}

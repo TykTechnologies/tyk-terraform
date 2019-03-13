@@ -37,6 +37,7 @@ module "tyk_gateway" {
 | Name | Description | Type | Default | Required |
 |------|-------------|:----:|:-----:|:-----:|
 | log\_group\_prefix | CloudWatch Logs group name prefix | string | `tyk` | no |
+| metrics\_namespace | Namespace for custom metrics | string | `TykMetrics` | no |
 | program\_name | Program name to filter the logs by logs | string | - | yes |
 
 ## Outputs

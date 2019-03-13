@@ -29,8 +29,9 @@ resource "random_string" "admin_secret" {
 module "tyk_cloudwatch_dashboard" {
   source = "../../modules/tyk-metrics/cloudwatch"
 
-  program_name     = "tyk-analytics"
-  log_group_prefix = "tyk-pro-${var.aws_region}"
+  program_name      = "tyk-analytics"
+  log_group_prefix  = "tyk-pro-${var.aws_region}"
+  metrics_namespace = "TykDashboard"
 }
 
 module "tyk_dashboard" {
@@ -89,8 +90,9 @@ resource "aws_route53_record" "dashboard_region" {
 module "tyk_cloudwatch_gateway" {
   source = "../../modules/tyk-metrics/cloudwatch"
 
-  program_name     = "tyk"
-  log_group_prefix = "tyk-pro-${var.aws_region}"
+  program_name      = "tyk"
+  log_group_prefix  = "tyk-pro-${var.aws_region}"
+  metrics_namespace = "TykGateway"
 }
 
 module "tyk_gateway" {
@@ -140,8 +142,9 @@ resource "aws_route53_record" "gateway_region" {
 module "tyk_cloudwatch_pump" {
   source = "../../modules/tyk-metrics/cloudwatch"
 
-  program_name     = "tyk-pump"
-  log_group_prefix = "tyk-pro-${var.aws_region}"
+  program_name      = "tyk-pump"
+  log_group_prefix  = "tyk-pro-${var.aws_region}"
+  metrics_namespace = "TykPump"
 }
 
 module "tyk_pump" {
@@ -173,8 +176,9 @@ module "tyk_pump" {
 module "tyk_cloudwatch_mdcb" {
   source = "../../modules/tyk-metrics/cloudwatch"
 
-  program_name     = "tyk-sink"
-  log_group_prefix = "tyk-pro-${var.aws_region}"
+  program_name      = "tyk-sink"
+  log_group_prefix  = "tyk-pro-${var.aws_region}"
+  metrics_namespace = "TykMDCB"
 }
 
 module "tyk_mdcb" {

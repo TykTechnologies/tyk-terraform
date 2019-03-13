@@ -49,12 +49,12 @@
                 ]
             }
         },
-        "namespace": "TykMetrics",
+        "namespace": "${namespace}",
         "append_dimensions": {
             "InstanceId": "$${aws:InstanceId}",
             "AutoScalingGroupName": "$${aws:AutoScalingGroupName}"
         },
-        "aggregation_dimensions": [["AutoScalingGroupName"], ["InstanceId"]]
+        "aggregation_dimensions": [["AutoScalingGroupName"], ["InstanceId"], []]
     },
     "logs": {
         "logs_collected": {
