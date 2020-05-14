@@ -112,7 +112,7 @@ module "tyk_gateway" {
   max_size                  = 4
   create_scaling_policies   = true
   port                      = "80"
-  gateway_version           = "2.7.6"
+  gateway_version           = "2.9.4"
   gateway_secret            = random_string.gateway_secret.result
   shared_node_secret        = random_string.shared_secret.result
   dashboard_url             = "http://${module.tyk_dashboard.dns_name}:80"
@@ -164,7 +164,7 @@ module "tyk_pump" {
   min_size                = 2
   max_size                = 4
   create_scaling_policies = true
-  pump_version            = "0.5.4"
+  pump_version            = "0.8.4"
 
   enable_ssm               = true
   enable_cloudwatch_policy = true
@@ -202,7 +202,7 @@ module "tyk_mdcb" {
   max_size                = 4
   create_scaling_policies = true
   port                    = "9090"
-  mdcb_version            = "1.5.7"
+  mdcb_version            = "1.7.4"
   forward_to_pump         = "true"
 
   enable_ssm               = true

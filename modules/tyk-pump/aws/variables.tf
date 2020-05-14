@@ -17,7 +17,7 @@ variable "ssh_sg_id" {
 variable "instance_type" {
   type        = string
   description = "EC2 instance type"
-  default     = "c5.large"
+  default     = "t3.small"
 }
 
 variable "key_name" {

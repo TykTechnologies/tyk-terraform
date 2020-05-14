@@ -28,7 +28,7 @@ module "tyk_gateway" {
   max_size                  = 4
   create_scaling_policies   = true
   port                      = "80"
-  gateway_version           = "2.7.4"
+  gateway_version           = "2.9.4"
   gateway_secret            = "supersecret1"
   shared_node_secret        = "supersecret2"
   dashboard_url             = "http://module.tyk_dashboard.dns_name:80"
@@ -36,7 +36,7 @@ module "tyk_gateway" {
 }
 ```
 
-This example will create a launch configuration with `tyk-gateway-2.7.4` running on `c5.large`  instances in VPC subnets "subnet-012345c34d32a4ca9" and "subnet-5432108982f9ca6c3" accessible on port 80, connected to Redis and Tyk Dashboard via specified configurations.
+This example will create a launch configuration with `tyk-gateway-2.9.4` running on `c5.large`  instances in VPC subnets "subnet-012345c34d32a4ca9" and "subnet-5432108982f9ca6c3" accessible on port 80, connected to Redis and Tyk Dashboard via specified configurations.
 
 The auto-scaling group will have between 2 and 4 instances with default scaling policies created too.
 

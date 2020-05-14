@@ -43,10 +43,10 @@ variable "instance_types" {
   description = "Map of EC2 instance types for each component"
 
   default = {
-    dashboard = "t3.medium"
-    gateway   = "c5.large"
-    pump      = "t3.large"
-    mdcb      = "c5.large"
+    dashboard = "t3.small"
+    gateway   = "t3.small"
+    pump      = "t3.small"
+    mdcb      = "t3.small"
   }
 }
 

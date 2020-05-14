@@ -53,7 +53,7 @@ module "tyk_dashboard" {
   create_scaling_policies = true
   port                    = "80"
   # notifications_port      = "5000"
-  dashboard_version       = "1.7.5"
+  dashboard_version       = "1.9.4"
   gateway_host            = "http://${local.gateway_host}"
   gateway_port            = "80"
   gateway_secret          = random_string.gateway_secret.result
@@ -104,7 +104,7 @@ module "tyk_gateway" {
   max_size                  = 3
   create_scaling_policies   = true
   port                      = "80"
-  gateway_version           = "2.7.6"
+  gateway_version           = "2.9.4"
   gateway_secret            = random_string.gateway_secret.result
   shared_node_secret        = random_string.shared_secret.result
   dashboard_url             = "http://${module.tyk_dashboard.dns_name}:80"
@@ -139,7 +139,7 @@ module "tyk_pump" {
   min_size                = 1
   max_size                = 2
   create_scaling_policies = true
-  pump_version            = "0.5.4"
+  pump_version            = "0.8.4"
 }
 
 # Uncomment to create MDCB (Terraform lacks module counts/conditionals atm)
@@ -163,7 +163,7 @@ module "tyk_pump" {
 #   max_size                = 3
 #   create_scaling_policies = true
 #   port                    = "9090"
-#   mdcb_version            = "1.5.7"
+#   mdcb_version            = "1.7.4"
 #   forward_to_pump         = "true"
 # }
 

@@ -31,12 +31,12 @@ module "tyk_mdcb" {
   min_size                  = 2
   max_size                  = 4
   create_scaling_policies   = true
-  mdcb_version              = "1.5.7"
+  mdcb_version              = "1.7.4"
   forward_to_pump           = "true"
 }
 ```
 
-This example will create a launch configuration with `tyk-sink-1.5.7` running on `c5.large`  instances in VPC subnets "subnet-012345c34d32a4ca9" and "subnet-5432108982f9ca6c3" accessible on port 9090, connected to Redis and MongoDB via specified configurations and forwarding analytics to Tyk Pump.
+This example will create a launch configuration with `tyk-sink-1.7.4` running on `c5.large`  instances in VPC subnets "subnet-012345c34d32a4ca9" and "subnet-5432108982f9ca6c3" accessible on port 9090, connected to Redis and MongoDB via specified configurations and forwarding analytics to Tyk Pump.
 
 The auto-scaling group will have between 2 and 4 instances with default scaling policies created too.
 

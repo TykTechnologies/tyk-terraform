@@ -26,11 +26,11 @@ module "tyk_pump" {
   min_size                  = 2
   max_size                  = 4
   create_scaling_policies   = true
-  pump_version              = "0.5.4"
+  pump_version              = "0.8.4"
 }
 ```
 
-This example will create a launch configuration with `tyk-pump-0.5.4` running on `t3.large`  instances in VPC subnets "subnet-012345c34d32a4ca9" and "subnet-5432108982f9ca6c3", connected to Redis and MongoDB via specified configurations.
+This example will create a launch configuration with `tyk-pump-0.8.4` running on `t3.large`  instances in VPC subnets "subnet-012345c34d32a4ca9" and "subnet-5432108982f9ca6c3", connected to Redis and MongoDB via specified configurations.
 
 The auto-scaling group will have between 2 and 4 instances with default scaling policies created too.
 

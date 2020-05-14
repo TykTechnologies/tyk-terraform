@@ -32,7 +32,7 @@ module "tyk_dashboard" {
   create_scaling_policies = true
   port                    = "80"
   notifications_port      = "5000"
-  dashboard_version       = "1.7.3"
+  dashboard_version       = "1.9.4"
   gateway_host            = "http://gw.host"
   gateway_port            = "80"
   gateway_secret          = "supersecret1"
@@ -44,11 +44,15 @@ module "tyk_dashboard" {
 }
 ```
 
-This example will create a launch configuration with `tyk-dashboard-1.7.3` running on `t3.medium`  instances in VPC subnets "subnet-012345c34d32a4ca9" and "subnet-5432108982f9ca6c3" accessible on port 80 (and 5000 for notifications), connected to Redis and MongoDB via specified configurations.
+This example will create a launch configuration with `tyk-dashboard-1.9.4` running on `t3.medium`  instances in VPC subnets "subnet-012345c34d32a4ca9" and "subnet-5432108982f9ca6c3" accessible on port 80 (and 5000 for notifications), connected to Redis and MongoDB via specified configurations.
 
 The auto-scaling group will have between 2 and 4 instances with default scaling policies created too.
 
 The load balancer will be provisioned in VPC subnets "subnet-012345c34d32a4ca9" and "subnet-5432108982f9ca6c3".
+
+## Bootstrap
+
+Please note that doing bootstrap through the GUI is not working at the moment and you will need to do the bootstrap manually. Instruction of how to do this can be found here: https://tyk.io/docs/tyk-dashboard-api/#creating-organisations-and-users. We have fix coming up in one of the next major releases, which will resolve the GUI bootstrap issue.
 
 ## Inputs
 
