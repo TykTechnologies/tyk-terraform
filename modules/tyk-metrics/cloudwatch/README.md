@@ -26,7 +26,7 @@ module "tyk_gateway" {
 
   ...
   enable_cloudwatch_policy = true
-  metrics_cloudconfig      = "${module.tyk_cloudwatch_gateway.cloud_config}"
+  metrics_cloudconfig      = module.tyk_cloudwatch_gateway.cloud_config
   statsd_conn_str          = "localhost:8125"
   statsd_prefix            = "us-east-1.tykGateway"
   ...

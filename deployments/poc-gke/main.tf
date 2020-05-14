@@ -1,8 +1,9 @@
 provider "google" {
-  credentials = "${file("account.json")}"
-  project     = "${var.gcp_project}"
-  region      = "${var.gcp_default_region}"
-  zone        = "${var.gcp_default_zone}"
+  credentials = file("account.json")
+  project     = var.gcp_project
+  region      = var.gcp_default_region
+  zone        = var.gcp_default_zone
+  version     = "~> 2.5"
 }
 
 # Bastion instance
@@ -20,10 +21,11 @@ resource "google_compute_instance" "bastion" {
   }
 
   // Local SSD disk
-  scratch_disk {}
+  scratch_disk {
+  }
 
   network_interface {
-    subnetwork = "${google_compute_subnetwork.tyk_utils.self_link}"
+    subnetwork = google_compute_subnetwork.tyk_utils.self_link
 
     access_config {
       // Ephemeral IP
@@ -37,7 +39,7 @@ resource "google_compute_instance" "bastion" {
 
 resource "google_container_cluster" "tyk" {
   name   = "tyk-testbench"
-  region = "${var.gcp_default_region}"
+  region = var.gcp_default_region
 
   # We can't create a cluster with no node pool defined, but we want to only use
   # separately managed node pools. So we create the smallest possible default
@@ -52,11 +54,12 @@ resource "google_container_cluster" "tyk" {
     password = ""
   }
 
-  network    = "${google_compute_network.tyk.self_link}"
-  subnetwork = "${google_compute_subnetwork.tyk_k8s.self_link}"
+  network    = google_compute_network.tyk.self_link
+  subnetwork = google_compute_subnetwork.tyk_k8s.self_link
 
   # Enables VPC-native policy, auto-creates two secondary IP ranges on the subnet
-  ip_allocation_policy {}
+  ip_allocation_policy {
+  }
 
   private_cluster_config {
     # enable_private_endpoint = true  # This should only be enabled for fully private master
@@ -67,7 +70,7 @@ resource "google_container_cluster" "tyk" {
   master_authorized_networks_config {
     # Access cluster master from utils subnet (like bastion host)
     cidr_blocks {
-      cidr_block   = "${google_compute_subnetwork.tyk_utils.ip_cidr_range}"
+      cidr_block   = google_compute_subnetwork.tyk_utils.ip_cidr_range
       display_name = "Tyk Utils subnet"
     }
   }
@@ -86,9 +89,9 @@ resource "google_container_cluster" "tyk" {
 
 resource "google_container_node_pool" "tyk" {
   name       = "tyk-testbench-pool"
-  region     = "${var.gcp_default_region}"
-  cluster    = "${google_container_cluster.tyk.name}"
-  node_count = 1                                      # For a regional cluster this is per zone rather than total
+  region     = var.gcp_default_region
+  cluster    = google_container_cluster.tyk.name
+  node_count = 1 # For a regional cluster this is per zone rather than total
 
   node_config {
     machine_type = "n1-standard-1"
@@ -108,9 +111,9 @@ resource "google_container_node_pool" "tyk" {
 
 resource "google_container_node_pool" "tyk_hcpu" {
   name       = "tyk-testbench-pool-hcpu"
-  region     = "${var.gcp_default_region}"
-  cluster    = "${google_container_cluster.tyk.name}"
-  node_count = 1                                      # For a regional cluster this is per zone rather than total
+  region     = var.gcp_default_region
+  cluster    = google_container_cluster.tyk.name
+  node_count = 1 # For a regional cluster this is per zone rather than total
 
   node_config {
     machine_type = "n1-highcpu-4"
@@ -132,40 +135,39 @@ resource "google_redis_instance" "redis" {
   tier           = "STANDARD_HA"
   memory_size_gb = 2
 
-  authorized_network = "${google_compute_network.tyk.self_link}"
+  authorized_network = google_compute_network.tyk.self_link
 
   redis_version = "REDIS_3_2"
   display_name  = "Tyk Testbench Redis HA"
-
   # reserved_ip_range = "192.168.0.0/29"
 }
 
 # Outputs
 
 output "bastion_endpoint" {
-  value = "${google_compute_instance.bastion.network_interface.0.access_config.0.nat_ip}"
+  value = google_compute_instance.bastion.network_interface[0].access_config[0].nat_ip
 }
 
 output "cluster_endpoint" {
-  value = "${google_container_cluster.tyk.endpoint}"
+  value = google_container_cluster.tyk.endpoint
 }
 
 output "cluster_client_certificate" {
-  value = "${google_container_cluster.tyk.master_auth.0.client_certificate}"
+  value = google_container_cluster.tyk.master_auth[0].client_certificate
 }
 
 output "cluster_client_key" {
-  value = "${google_container_cluster.tyk.master_auth.0.client_key}"
+  value = google_container_cluster.tyk.master_auth[0].client_key
 }
 
 output "cluster_ca_certificate" {
-  value = "${google_container_cluster.tyk.master_auth.0.cluster_ca_certificate}"
+  value = google_container_cluster.tyk.master_auth[0].cluster_ca_certificate
 }
 
 output "redis_host" {
-  value = "${google_redis_instance.redis.host}"
+  value = google_redis_instance.redis.host
 }
 
 output "redis_port" {
-  value = "${google_redis_instance.redis.port}"
+  value = google_redis_instance.redis.port
 }

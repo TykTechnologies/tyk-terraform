@@ -5,10 +5,10 @@ locals {
 }
 
 provider "aws" {
-  version    = "~> 1.60"
-  region     = "${var.aws_region}"
-  access_key = "${var.aws_access_key}"
-  secret_key = "${var.aws_secret_key}"
+  region     = var.aws_region
+  access_key = var.aws_access_key
+  secret_key = var.aws_secret_key
+  version    = "~> 2.7"
 }
 
 resource "random_string" "gateway_secret" {
@@ -37,18 +37,18 @@ module "tyk_cloudwatch_dashboard" {
 module "tyk_dashboard" {
   source = "../../modules/tyk-dashboard/aws"
 
-  vpc_id           = "${var.vpc_id}"
-  instance_subnets = "${var.instance_subnets}"
-  lb_subnets       = "${var.lb_subnets}"
-  ssh_sg_id        = "${var.ssh_sg_id}"
-  key_name         = "${var.key_name}"
-  redis_host       = "${var.redis_host}"
-  redis_port       = "${var.redis_port}"
-  redis_password   = "${var.redis_password}"
-  mongo_url        = "${var.mongo_url}"
-  mongo_use_ssl    = "${var.mongo_use_ssl}"
-  license_key      = "${var.tyk_license_key}"
-  instance_type    = "${var.instance_types["dashboard"]}"
+  vpc_id           = var.vpc_id
+  instance_subnets = var.instance_subnets
+  lb_subnets       = var.lb_subnets
+  ssh_sg_id        = var.ssh_sg_id
+  key_name         = var.key_name
+  redis_host       = var.redis_host
+  redis_port       = var.redis_port
+  redis_password   = var.redis_password
+  mongo_url        = var.mongo_url
+  mongo_use_ssl    = var.mongo_use_ssl
+  license_key      = var.tyk_license_key
+  instance_type    = var.instance_types["dashboard"]
 
   min_size                = 2
   max_size                = 4
@@ -59,9 +59,9 @@ module "tyk_dashboard" {
   dashboard_version  = "1.7.5"
   gateway_host       = "http://${local.gateway_region_host}"
   gateway_port       = "80"
-  gateway_secret     = "${random_string.gateway_secret.result}"
-  shared_node_secret = "${random_string.shared_secret.result}"
-  admin_secret       = "${random_string.admin_secret.result}"
+  gateway_secret     = random_string.gateway_secret.result
+  shared_node_secret = random_string.shared_secret.result
+  admin_secret       = random_string.admin_secret.result
   hostname           = "admin.${var.base_domain}"
   api_hostname       = "gw.${var.base_domain}"
   portal_root        = "/portal"
@@ -69,20 +69,20 @@ module "tyk_dashboard" {
   enable_ssm               = true
   enable_cloudwatch_policy = true
   enable_https             = true
-  certificate_arn          = "${var.tls_certificate_arn}"
-  metrics_cloudconfig      = "${module.tyk_cloudwatch_dashboard.cloud_config}"
+  certificate_arn          = var.tls_certificate_arn
+  metrics_cloudconfig      = module.tyk_cloudwatch_dashboard.cloud_config
   statsd_conn_str          = "localhost:8125"
   statsd_prefix            = "${var.aws_region}.tykDashboard"
 }
 
 resource "aws_route53_record" "dashboard_region" {
-  zone_id = "${var.route53_zone_id}"
-  name    = "${local.dashboard_region_host}"
+  zone_id = var.route53_zone_id
+  name    = local.dashboard_region_host
   type    = "A"
 
   alias {
-    name                   = "${module.tyk_dashboard.dns_name}"
-    zone_id                = "${module.tyk_dashboard.zone_id}"
+    name                   = module.tyk_dashboard.dns_name
+    zone_id                = module.tyk_dashboard.zone_id
     evaluate_target_health = true
   }
 }
@@ -98,43 +98,43 @@ module "tyk_cloudwatch_gateway" {
 module "tyk_gateway" {
   source = "../../modules/tyk-gateway/aws"
 
-  vpc_id           = "${var.vpc_id}"
-  instance_subnets = "${var.instance_subnets}"
-  lb_subnets       = "${var.lb_subnets}"
-  ssh_sg_id        = "${var.ssh_sg_id}"
-  key_name         = "${var.key_name}"
-  redis_host       = "${var.redis_host}"
-  redis_port       = "${var.redis_port}"
-  redis_password   = "${var.redis_password}"
-  instance_type    = "${var.instance_types["gateway"]}"
+  vpc_id           = var.vpc_id
+  instance_subnets = var.instance_subnets
+  lb_subnets       = var.lb_subnets
+  ssh_sg_id        = var.ssh_sg_id
+  key_name         = var.key_name
+  redis_host       = var.redis_host
+  redis_port       = var.redis_port
+  redis_password   = var.redis_password
+  instance_type    = var.instance_types["gateway"]
 
   min_size                  = 2
   max_size                  = 4
   create_scaling_policies   = true
   port                      = "80"
   gateway_version           = "2.7.6"
-  gateway_secret            = "${random_string.gateway_secret.result}"
-  shared_node_secret        = "${random_string.shared_secret.result}"
+  gateway_secret            = random_string.gateway_secret.result
+  shared_node_secret        = random_string.shared_secret.result
   dashboard_url             = "http://${module.tyk_dashboard.dns_name}:80"
   enable_detailed_analytics = "false"
 
   enable_ssm               = true
   enable_cloudwatch_policy = true
   enable_https             = true
-  certificate_arn          = "${var.tls_certificate_arn}"
-  metrics_cloudconfig      = "${module.tyk_cloudwatch_gateway.cloud_config}"
+  certificate_arn          = var.tls_certificate_arn
+  metrics_cloudconfig      = module.tyk_cloudwatch_gateway.cloud_config
   statsd_conn_str          = "localhost:8125"
   statsd_prefix            = "${var.aws_region}.tykGateway"
 }
 
 resource "aws_route53_record" "gateway_region" {
-  zone_id = "${var.route53_zone_id}"
-  name    = "${local.gateway_region_host}"
+  zone_id = var.route53_zone_id
+  name    = local.gateway_region_host
   type    = "A"
 
   alias {
-    name                   = "${module.tyk_gateway.dns_name}"
-    zone_id                = "${module.tyk_gateway.zone_id}"
+    name                   = module.tyk_gateway.dns_name
+    zone_id                = module.tyk_gateway.zone_id
     evaluate_target_health = true
   }
 }
@@ -150,16 +150,16 @@ module "tyk_cloudwatch_pump" {
 module "tyk_pump" {
   source = "../../modules/tyk-pump/aws"
 
-  vpc_id           = "${var.vpc_id}"
-  instance_subnets = "${var.instance_subnets}"
-  ssh_sg_id        = "${var.ssh_sg_id}"
-  key_name         = "${var.key_name}"
-  redis_host       = "${var.redis_host}"
-  redis_port       = "${var.redis_port}"
-  redis_password   = "${var.redis_password}"
-  mongo_url        = "${var.mongo_url}"
-  mongo_use_ssl    = "${var.mongo_use_ssl}"
-  instance_type    = "${var.instance_types["pump"]}"
+  vpc_id           = var.vpc_id
+  instance_subnets = var.instance_subnets
+  ssh_sg_id        = var.ssh_sg_id
+  key_name         = var.key_name
+  redis_host       = var.redis_host
+  redis_port       = var.redis_port
+  redis_password   = var.redis_password
+  mongo_url        = var.mongo_url
+  mongo_use_ssl    = var.mongo_use_ssl
+  instance_type    = var.instance_types["pump"]
 
   min_size                = 2
   max_size                = 4
@@ -168,7 +168,7 @@ module "tyk_pump" {
 
   enable_ssm               = true
   enable_cloudwatch_policy = true
-  metrics_cloudconfig      = "${module.tyk_cloudwatch_pump.cloud_config}"
+  metrics_cloudconfig      = module.tyk_cloudwatch_pump.cloud_config
   statsd_conn_str          = "localhost:8125"
   statsd_prefix            = "${var.aws_region}.tykPump"
 }
@@ -184,19 +184,19 @@ module "tyk_cloudwatch_mdcb" {
 module "tyk_mdcb" {
   source = "../../modules/tyk-mdcb/aws"
 
-  vpc_id           = "${var.vpc_id}"
-  instance_subnets = "${var.instance_subnets}"
-  lb_subnets       = "${var.lb_subnets}"
-  ssh_sg_id        = "${var.ssh_sg_id}"
-  key_name         = "${var.key_name}"
-  redis_host       = "${var.redis_host}"
-  redis_port       = "${var.redis_port}"
-  redis_password   = "${var.redis_password}"
-  mongo_url        = "${var.mongo_url}"
-  mongo_use_ssl    = "${var.mongo_use_ssl}"
-  mdcb_token       = "${var.mdcb_token}"
-  license_key      = "${var.mdcb_license_key}"
-  instance_type    = "${var.instance_types["mdcb"]}"
+  vpc_id           = var.vpc_id
+  instance_subnets = var.instance_subnets
+  lb_subnets       = var.lb_subnets
+  ssh_sg_id        = var.ssh_sg_id
+  key_name         = var.key_name
+  redis_host       = var.redis_host
+  redis_port       = var.redis_port
+  redis_password   = var.redis_password
+  mongo_url        = var.mongo_url
+  mongo_use_ssl    = var.mongo_use_ssl
+  mdcb_token       = var.mdcb_token
+  license_key      = var.mdcb_license_key
+  instance_type    = var.instance_types["mdcb"]
 
   min_size                = 2
   max_size                = 4
@@ -208,44 +208,44 @@ module "tyk_mdcb" {
   enable_ssm               = true
   enable_cloudwatch_policy = true
   enable_tls               = true
-  certificate_arn          = "${var.tls_certificate_arn}"
-  metrics_cloudconfig      = "${module.tyk_cloudwatch_mdcb.cloud_config}"
+  certificate_arn          = var.tls_certificate_arn
+  metrics_cloudconfig      = module.tyk_cloudwatch_mdcb.cloud_config
   statsd_conn_str          = "localhost:8125"
   statsd_prefix            = "${var.aws_region}.tykMDCB"
 }
 
 resource "aws_route53_record" "mdcb_region" {
-  zone_id = "${var.route53_zone_id}"
-  name    = "${local.mdcb_region_host}"
+  zone_id = var.route53_zone_id
+  name    = local.mdcb_region_host
   type    = "A"
 
   alias {
-    name                   = "${module.tyk_mdcb.dns_name}"
-    zone_id                = "${module.tyk_mdcb.zone_id}"
+    name                   = module.tyk_mdcb.dns_name
+    zone_id                = module.tyk_mdcb.zone_id
     evaluate_target_health = true
   }
 }
 
 output "dashboard_region_endpoint" {
-  value = "${aws_route53_record.dashboard_region.name}"
+  value = aws_route53_record.dashboard_region.name
 }
 
 output "gateway_region_endpoint" {
-  value = "${aws_route53_record.gateway_region.name}"
+  value = aws_route53_record.gateway_region.name
 }
 
 output "mdcb_region_endpoint" {
-  value = "${aws_route53_record.mdcb_region.name}"
+  value = aws_route53_record.mdcb_region.name
 }
 
 output "gateway_secret" {
-  value = "${random_string.gateway_secret.result}"
+  value = random_string.gateway_secret.result
 }
 
 output "shared_secret" {
-  value = "${random_string.shared_secret.result}"
+  value = random_string.shared_secret.result
 }
 
 output "admin_secret" {
-  value = "${random_string.admin_secret.result}"
+  value = random_string.admin_secret.result
 }

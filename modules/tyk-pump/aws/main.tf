@@ -2,7 +2,7 @@
 
 resource "aws_security_group" "instance_sg" {
   name   = "tyk_pump_instance"
-  vpc_id = "${var.vpc_id}"
+  vpc_id = var.vpc_id
 
   # "allow all" egress rule is fine for instances too as they need outbound internet access
   egress {
@@ -17,6 +17,7 @@ resource "aws_security_group" "instance_sg" {
 
 data "aws_ami" "amazonlinux" {
   most_recent = true
+  owners      = ["amazon"]
 
   filter {
     name   = "name"
@@ -40,21 +41,21 @@ data "aws_ami" "amazonlinux" {
 }
 
 data "template_file" "cloud_config" {
-  template = "${file("${path.module}/cloud_config.yml")}"
+  template = file("${path.module}/cloud_config.yml")
 
-  vars {
-    repository           = "${var.package_repository}"
-    pump_version         = "${var.pump_version}"
-    custom_config        = "${base64encode("${var.pump_config}")}"
-    mongo_url            = "${var.mongo_url}"
-    mongo_use_ssl        = "${var.mongo_use_ssl}"
-    redis_host           = "${var.redis_host}"
-    redis_port           = "${var.redis_port}"
-    redis_password       = "${var.redis_password}"
-    redis_enable_cluster = "${var.redis_enable_cluster}"
-    redis_hosts          = "${var.redis_hosts}"
-    statsd_conn_str      = "${var.statsd_conn_str}"
-    statsd_prefix        = "${var.statsd_prefix}"
+  vars = {
+    repository           = var.package_repository
+    pump_version         = var.pump_version
+    custom_config        = base64encode(var.pump_config)
+    mongo_url            = var.mongo_url
+    mongo_use_ssl        = var.mongo_use_ssl
+    redis_host           = var.redis_host
+    redis_port           = var.redis_port
+    redis_password       = var.redis_password
+    redis_enable_cluster = var.redis_enable_cluster
+    redis_hosts          = var.redis_hosts
+    statsd_conn_str      = var.statsd_conn_str
+    statsd_prefix        = var.statsd_prefix
   }
 }
 
@@ -65,30 +66,31 @@ data "template_cloudinit_config" "merged_cloud_config" {
   part {
     filename     = "main.cfg"
     content_type = "text/cloud-config"
-    content      = "${data.template_file.cloud_config.rendered}"
+    content      = data.template_file.cloud_config.rendered
   }
 
   part {
     filename     = "metrics.cfg"
     content_type = "text/cloud-config"
-    content      = "${var.metrics_cloudconfig}"
+    content      = var.metrics_cloudconfig
     merge_type   = "list(append)+dict(recurse_array)+str()"
   }
 }
 
 module "asg" {
-  source = "terraform-aws-modules/autoscaling/aws"
+  source  = "terraform-aws-modules/autoscaling/aws"
+  version = "~> 3.0.0"
 
   name = "tyk_pump"
 
   # Launch configuration
   lc_name              = "tyk_pump"
-  image_id             = "${data.aws_ami.amazonlinux.id}"
-  instance_type        = "${var.instance_type}"
-  security_groups      = ["${aws_security_group.instance_sg.id}", "${var.ssh_sg_id}"]
-  key_name             = "${var.key_name}"
-  user_data            = "${data.template_cloudinit_config.merged_cloud_config.rendered}"
-  iam_instance_profile = "${aws_iam_instance_profile.default.name}"
+  image_id             = data.aws_ami.amazonlinux.id
+  instance_type        = var.instance_type
+  security_groups      = [aws_security_group.instance_sg.id, var.ssh_sg_id]
+  key_name             = var.key_name
+  user_data            = data.template_cloudinit_config.merged_cloud_config.rendered
+  iam_instance_profile = aws_iam_instance_profile.default.name
 
   root_block_device = [
     {
@@ -99,13 +101,13 @@ module "asg" {
 
   # Auto scaling group
   asg_name                     = "tyk_pump"
-  vpc_zone_identifier          = ["${var.instance_subnets}"]
+  vpc_zone_identifier          = var.instance_subnets
   health_check_type            = "EC2"
-  min_size                     = "${var.min_size}"
-  max_size                     = "${var.max_size}"
-  desired_capacity             = "${var.min_size}"
+  min_size                     = var.min_size
+  max_size                     = var.max_size
+  desired_capacity             = var.min_size
   wait_for_capacity_timeout    = "5m"
-  recreate_asg_when_lc_changes = true                        # Enables Blue/Green deployments, TODO: possibly marry CloudFormation for rolling upgrades
+  recreate_asg_when_lc_changes = true # Enables Blue/Green deployments, TODO: possibly marry CloudFormation for rolling upgrades
 }
 
 resource "aws_autoscaling_policy" "scale_up" {
@@ -113,9 +115,9 @@ resource "aws_autoscaling_policy" "scale_up" {
   scaling_adjustment     = 1
   adjustment_type        = "ChangeInCapacity"
   cooldown               = 300
-  autoscaling_group_name = "${module.asg.this_autoscaling_group_name}"
+  autoscaling_group_name = module.asg.this_autoscaling_group_name
 
-  count = "${var.create_scaling_policies}"
+  count = 1
 }
 
 resource "aws_autoscaling_policy" "scale_down" {
@@ -123,9 +125,9 @@ resource "aws_autoscaling_policy" "scale_down" {
   scaling_adjustment     = -1
   adjustment_type        = "ChangeInCapacity"
   cooldown               = 300
-  autoscaling_group_name = "${module.asg.this_autoscaling_group_name}"
+  autoscaling_group_name = module.asg.this_autoscaling_group_name
 
-  count = "${var.create_scaling_policies}"
+  count = 1
 }
 
 resource "aws_cloudwatch_metric_alarm" "scaling_alarm" {
@@ -138,13 +140,13 @@ resource "aws_cloudwatch_metric_alarm" "scaling_alarm" {
   statistic           = "Average"
   threshold           = "80"
 
-  dimensions {
-    AutoScalingGroupName = "${module.asg.this_autoscaling_group_name}"
+  dimensions = {
+    AutoScalingGroupName = module.asg.this_autoscaling_group_name
   }
 
   alarm_description = "Monitors CPU activity of the Tyk pump instances for scaling policy"
-  alarm_actions     = ["${aws_autoscaling_policy.scale_up.arn}"]
-  ok_actions        = ["${aws_autoscaling_policy.scale_down.arn}"]
+  alarm_actions     = [aws_autoscaling_policy.scale_up[0].arn]
+  ok_actions        = [aws_autoscaling_policy.scale_down[0].arn]
 
-  count = "${var.create_scaling_policies}"
+  count = 1
 }

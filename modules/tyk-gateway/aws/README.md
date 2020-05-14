@@ -31,7 +31,7 @@ module "tyk_gateway" {
   gateway_version           = "2.7.4"
   gateway_secret            = "supersecret1"
   shared_node_secret        = "supersecret2"
-  dashboard_url             = "http://${module.tyk_dashboard.dns_name}:80"
+  dashboard_url             = "http://module.tyk_dashboard.dns_name:80"
   enable_detailed_analytics = "false"
 }
 ```

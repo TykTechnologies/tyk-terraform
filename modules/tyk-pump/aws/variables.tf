@@ -1,38 +1,38 @@
 variable "vpc_id" {
-  type        = "string"
+  type        = string
   description = "VPC to use for Tyk pump"
 }
 
 variable "instance_subnets" {
-  type        = "list"
+  type        = list(string)
   description = "List of subnets to use for instances"
 }
 
 variable "ssh_sg_id" {
-  type        = "string"
+  type        = string
   description = "Security group for SSH access"
   default     = ""
 }
 
 variable "instance_type" {
-  type        = "string"
+  type        = string
   description = "EC2 instance type"
   default     = "c5.large"
 }
 
 variable "key_name" {
-  type        = "string"
+  type        = string
   description = "EC2 key pair name"
 }
 
 variable "min_size" {
-  type        = "string"
+  type        = string
   description = "Minimum number of instances in autoscaling group"
   default     = "1"
 }
 
 variable "max_size" {
-  type        = "string"
+  type        = string
   description = "Maximum number of instance in autoscaling group"
   default     = "2"
 }
@@ -43,60 +43,60 @@ variable "create_scaling_policies" {
 }
 
 variable "pump_config" {
-  type        = "string"
+  type        = string
   description = "Full pump config file contents (replaces the default config file if set)"
   default     = ""
 }
 
 variable "package_repository" {
-  type        = "string"
+  type        = string
   description = "Repository name for the PackageCloud package"
   default     = "tyk-pump"
 }
 
 variable "pump_version" {
-  type        = "string"
+  type        = string
   description = "Version of Tyk pump to deploy"
 }
 
 variable "mongo_url" {
-  type        = "string"
+  type        = string
   description = "MongoDB connection string"
   default     = ""
 }
 
 variable "mongo_use_ssl" {
-  type        = "string"
+  type        = string
   description = "Should MongoDB connection use SSL/TLS?"
   default     = ""
 }
 
 variable "redis_host" {
-  type        = "string"
+  type        = string
   description = "Redis host"
   default     = ""
 }
 
 variable "redis_port" {
-  type        = "string"
+  type        = string
   description = "Redis port"
   default     = ""
 }
 
 variable "redis_password" {
-  type        = "string"
+  type        = string
   description = "Redis password"
   default     = ""
 }
 
 variable "redis_enable_cluster" {
-  type        = "string"
+  type        = string
   description = "Is Redis clustering enabled?"
   default     = ""
 }
 
 variable "redis_hosts" {
-  type        = "string"
+  type        = string
   description = "Redis cluster connection parameters"
   default     = ""
 }
@@ -112,19 +112,19 @@ variable "enable_cloudwatch_policy" {
 }
 
 variable "metrics_cloudconfig" {
-  type        = "string"
+  type        = string
   description = "Rendered cloud-init config for metrics and logs collection setup"
   default     = ""
 }
 
 variable "statsd_conn_str" {
-  type        = "string"
+  type        = string
   description = "Connection string for statsd instrumentation"
   default     = ""
 }
 
 variable "statsd_prefix" {
-  type        = "string"
+  type        = string
   description = "Prefix for statsd metrics"
   default     = "tykPMP"
 }
